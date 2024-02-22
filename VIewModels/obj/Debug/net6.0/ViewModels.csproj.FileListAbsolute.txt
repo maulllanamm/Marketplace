@@ -1,0 +1,11 @@
+D:\Own Project\Marketplace\VIewModels\bin\Debug\net6.0\ViewModels.deps.json
+D:\Own Project\Marketplace\VIewModels\bin\Debug\net6.0\ViewModels.dll
+D:\Own Project\Marketplace\VIewModels\bin\Debug\net6.0\ViewModels.pdb
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ViewModels.GeneratedMSBuildEditorConfig.editorconfig
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ViewModels.AssemblyInfoInputs.cache
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ViewModels.AssemblyInfo.cs
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ViewModels.csproj.CoreCompileInputs.cache
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ViewModels.dll
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\refint\ViewModels.dll
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ViewModels.pdb
+D:\Own Project\Marketplace\VIewModels\obj\Debug\net6.0\ref\ViewModels.dll
