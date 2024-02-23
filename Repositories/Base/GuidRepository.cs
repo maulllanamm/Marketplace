@@ -1,7 +1,9 @@
 ﻿using Entities.Base;
 using Marketplace.Enitities.Base;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories.Base;
+using Repositories.ConfigUoW;
 using System.Data;
 using System.Linq.Expressions;
 
@@ -18,36 +20,115 @@ namespace Marketplace.Repositories.Base
         }
 
 
-        public async Task Create(GuidEntity entity)
+        public async Task<GuidEntity> Create(GuidEntity entity)
         {
             entity.created_date ??= DateTime.UtcNow;
             entity.created_by ??= "system";
             entity.modified_date ??= DateTime.UtcNow;
-            entity.modified_by??= "system";
+            entity.modified_by ??= "system";
             entity.is_deleted = false;
-            await _context.Set<GuidEntity>().AddAsync(entity);
-            await _context.SaveChangesAsync();
+
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    unitOfWork.BeginTransaction();
+
+                    _context.Set<GuidEntity>().Add(entity);
+                    unitOfWork.SaveChanges();
+
+                    unitOfWork.Commit();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                }
+            }
+            return entity;
         }
 
-        public void Delete(GuidEntity entity)
+        public async Task<Guid> Delete(GuidEntity entity)
         {
-            _context.Set<GuidEntity>().Remove(entity);
+            using(var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    unitOfWork.BeginTransaction();
+                    _context.Set<GuidEntity>().Remove(entity);
+                    unitOfWork.SaveChanges();
+
+                    unitOfWork.Commit();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw;
+                }
+            }
+            return entity.id;
         }
 
-        public void Delete(Guid id)
+        public async Task<Guid> Delete(Guid id)
         {
             var entityToDelete = _context.Set<GuidEntity>().FirstOrDefault(e => e.id == id);
             if (entityToDelete != null)
             {
-                _context.Set<GuidEntity>().Remove(entityToDelete);
+                using (var unitOfWork = new UnitOfWork(_context))
+                {
+                    try
+                    {
+                        unitOfWork.BeginTransaction();
+                        _context.Set<GuidEntity>().Remove(entityToDelete);
+                        unitOfWork.SaveChanges();
+
+                        unitOfWork.Commit();
+                  
+                    }
+                    catch (Exception)
+                    {
+                        unitOfWork.Rollback();
+                        throw;
+                    }
+                }
             }
+            return id;
         }
 
-        public void Edit(GuidEntity entity)
+        public async Task<GuidEntity> Edit(GuidEntity entity)
         {
-            var editedEntity = _context.Set<GuidEntity>().FirstOrDefault(e => e.id == entity.id);
-            editedEntity = entity;
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    unitOfWork.BeginTransaction();
+                    var editedEntity = _context.Set<GuidEntity>().FirstOrDefault(e => e.id == entity.id);
+                    if (editedEntity == null)
+                    {
+                        throw new Exception("Entity not found");
+                    }
+
+                    // Mengupdate nilai properti dari editedEntity dengan nilai dari entity
+                    _context.Entry(editedEntity).CurrentValues.SetValues(entity);
+
+                    editedEntity.modified_date = DateTime.UtcNow;
+                    editedEntity.created_date = DateTime.UtcNow;
+                    editedEntity.created_by ??= "system";
+                    editedEntity.modified_by ??= "system";
+                    editedEntity.is_deleted ??= false;
+
+                    unitOfWork.SaveChanges();
+                    unitOfWork.Commit();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw;
+                }
+            }
+            return entity;
         }
+
 
         public GuidEntity GetById(Guid id)
         {

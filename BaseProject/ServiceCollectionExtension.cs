@@ -2,8 +2,8 @@
 using Marketplace.Repositories.Base;
 using Marketplace.Requests;
 using Marketplace.Services.Interface;
-using Repositories;
 using Repositories.Base;
+using Repositories.ConfigUoW;
 using Repositories.Interface;
 
 namespace Marketplace

@@ -7,5 +7,7 @@ namespace Marketplace.Services.Interface
     public interface ICustomerService : IGuidService<CustomerViewModel>
     {
         public Task<CustomerViewModel> Register(CustomerViewModel request);
+        public Task<CustomerViewModel> Edit(CustomerViewModel request);
+        public Task<Guid> Delete(Guid id);
     }
 }

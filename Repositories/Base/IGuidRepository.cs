@@ -2,10 +2,10 @@
 {
     public interface IGuidRepository<GuidEntitiy> where GuidEntitiy : class
     {
-        Task Create(GuidEntitiy entity);
-        void Delete(GuidEntitiy entity);
-        void Delete(Guid id);
-        void Edit(GuidEntitiy entity);
+        Task<GuidEntitiy> Create(GuidEntitiy entity);
+        Task<Guid> Delete(GuidEntitiy entity);
+        Task<Guid> Delete(Guid id);
+        Task<GuidEntitiy> Edit(GuidEntitiy entity);
 
         //read side (could be in separate Readonly Generic Repository)
         GuidEntitiy GetById(Guid id);

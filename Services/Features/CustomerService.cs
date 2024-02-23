@@ -39,5 +39,17 @@ namespace Marketplace.Requests
             _repo.Create(customer);
             return _mapper.Map<CustomerViewModel>(customer);
         }
+        public async Task<CustomerViewModel> Edit(CustomerViewModel request)
+        {
+            var customer = _mapper.Map<Customer>(request);
+            _repo.Edit(customer);
+            return request;
+        }
+
+        public async Task<Guid> Delete(Guid id)
+        {
+            _repo.Delete(id);
+            return id;
+        }
     }
 }
