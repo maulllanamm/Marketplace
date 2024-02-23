@@ -12,4 +12,13 @@ namespace Marketplace.Enitities
         public string phone_number { get; set; }
         public string address { get; set; }
     }
+
+    public class CustomerUpdate : GuidEntity
+    {
+        public string username { get; set; }
+        public string email { get; set; }
+        public string full_name { get; set; }
+        public string phone_number { get; set; }
+        public string address { get; set; }
+    }
 }

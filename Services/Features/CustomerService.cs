@@ -37,7 +37,9 @@ namespace Marketplace.Requests
 
             customer.password_hash = _passwordHasher.ComputeHash(request.Password, customer.password_salt, _papper, _iteration);
             _repo.Create(customer);
-            return _mapper.Map<CustomerViewModel>(customer);
+            var res = _mapper.Map<CustomerViewModel>(customer);
+            res.Password = "==HASH==";
+            return res;
         }
         public async Task<CustomerViewModel> Edit(CustomerViewModel request)
         {
