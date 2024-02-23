@@ -12,8 +12,8 @@ namespace Marketplace
         {
             SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
             DestinationMemberNamingConvention = new PascalCaseNamingConvention();
-            CreateMap<CustomerViewModel, CustomerEntity>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
-            CreateMap<CustomerEntity, CustomerViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
+            CreateMap<CustomerViewModel, Customer>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
+            CreateMap<Customer, CustomerViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
         }
     }
 }

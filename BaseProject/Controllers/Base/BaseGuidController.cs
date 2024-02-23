@@ -17,36 +17,36 @@ namespace Marketplace.Controllers.Base
         [HttpGet]
         public virtual async Task<ActionResult> GetAll()
         {
-            return Ok(await _service.GetAll());
+            return Ok(await _service.All());
         }
 
         [HttpGet("{id}")]
         public virtual async Task<ActionResult> Get(Guid id)
         {
-            return Ok(await _service.Get(id));
+            return Ok(await _service.GetById(id));
         }
 
         [HttpPost]
         public virtual async Task<ActionResult> Post(ViewModel request)
         {
-            _service.Create(request);
+            _service.Add(request);
             return Ok();
         }
 
 
-        [HttpPut("{id}")]
-        public virtual async Task<ActionResult> Put(ViewModel request)
-        {
-            _service.Update(request);
-            return Ok();
-        }
+        //[HttpPut("{id}")]
+        //public virtual async Task<ActionResult> Put(ViewModel request)
+        //{
+        //    _service.Update(request);
+        //    return Ok();
+        //}
 
-        [HttpDelete("{id}")]
-        public virtual async Task<ActionResult> Delete(Guid id)
-        {
-            _service.Delete(id);
-            return Ok();
-        }
+        //[HttpDelete("{id}")]
+        //public virtual async Task<ActionResult> Delete(Guid id)
+        //{
+        //    _service.Delete(id);
+        //    return Ok();
+        //}
 
         internal static void CleaningGarbage()
         {

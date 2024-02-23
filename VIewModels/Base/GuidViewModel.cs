@@ -1,6 +1,6 @@
 ﻿namespace Marketplace.Responses.Base
 {
-    public class BaseGuidViewModel
+    public class GuidViewModel
     {
         public Guid Id { get; set; }
         public bool? IsDeleted { get; set; }

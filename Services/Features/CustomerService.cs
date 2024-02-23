@@ -7,14 +7,14 @@ using Repositories.Base;
 
 namespace Marketplace.Requests
 {
-    public class CustomerService : BaseGuidService<CustomerViewModel, CustomerEntity>, ICustomerService
+    public class CustomerService : GuidService<CustomerViewModel, Customer>, ICustomerService
     {
-        private readonly IBaseGuidRepository<CustomerEntity> _repo ;
+        private readonly IGuidRepository<Customer> _repo ;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
         private readonly string _papper = "v81IKJ3ZBFgwc2AdnYeOLhUn9muUtIQ0";
         private readonly int _iteration = 3;
-        public CustomerService(IMapper mapper, IPasswordHasher passwordHasher, IBaseGuidRepository<CustomerEntity> repo) : base(mapper, repo)
+        public CustomerService(IMapper mapper, IPasswordHasher passwordHasher, IGuidRepository<Customer> repo) : base(mapper, repo)
         {
             _mapper = mapper;
             _passwordHasher = passwordHasher;
@@ -23,7 +23,7 @@ namespace Marketplace.Requests
 
         public async Task<CustomerViewModel> Register(CustomerViewModel request)
         {
-            var customer = new CustomerEntity
+            var customer = new Customer
             {
                 username = request.Username,
                 email = request.Email,

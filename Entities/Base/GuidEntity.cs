@@ -1,6 +1,8 @@
-﻿namespace Marketplace.Enitities.Base
+﻿using Entities.Base;
+
+namespace Marketplace.Enitities.Base
 {
-    public class BaseGuidEntity
+    public class GuidEntity : IGuidEntity
     {
         public Guid id { get; set; }
         public bool? is_deleted { get; set; }

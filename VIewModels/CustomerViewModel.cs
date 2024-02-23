@@ -2,7 +2,7 @@
 
 namespace Marketplace.Responses
 {
-    public class CustomerViewModel : BaseGuidViewModel
+    public class CustomerViewModel : GuidViewModel
     {
         public string Username { get; set; }
         public string Password { get; set; }

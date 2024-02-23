@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\Base\**" />
+    <Content Remove="Controllers\Base\**" />
+    <EmbeddedResource Remove="Controllers\Base\**" />
+    <None Remove="Controllers\Base\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Bogus" Version="35.4.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.12" />

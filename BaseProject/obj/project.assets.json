@@ -686,6 +686,10 @@
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
           "Entities": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "6.0.12",
+          "Microsoft.EntityFrameworkCore.Abstractions": "6.0.12",
+          "Microsoft.EntityFrameworkCore.Analyzers": "6.0.12",
+          "Microsoft.EntityFrameworkCore.Relational": "6.0.12",
           "Npgsql": "6.0.7",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "6.0.7",
           "Z.EntityFramework.Extensions.EFCore": "6.102.1"

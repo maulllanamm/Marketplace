@@ -13,3 +13,5 @@ D:\Own Project\Marketplace\Repositories\obj\Debug\net6.0\Repositories.dll
 D:\Own Project\Marketplace\Repositories\obj\Debug\net6.0\refint\Repositories.dll
 D:\Own Project\Marketplace\Repositories\obj\Debug\net6.0\Repositories.pdb
 D:\Own Project\Marketplace\Repositories\obj\Debug\net6.0\ref\Repositories.dll
+D:\Own Project\Marketplace\Repositories\bin\Debug\net6.0\Repositories.runtimeconfig.json
+D:\Own Project\Marketplace\Repositories\obj\Debug\net6.0\Repositories.genruntimeconfig.cache

@@ -1,10 +1,15 @@
 ﻿using Marketplace.Enitities;
+using Marketplace.Enitities.Base;
 using Marketplace.Repositories.Base;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Repositories.Interface;
 
 namespace Marketplace.Repositories
 {
-    public class CustomerRepository : BaseGuidRepository<CustomerEntity>
+    public class CustomerRepository : GuidRepository<Customer>, ICustomerRepository
     {
+
         public CustomerRepository(DataContext context) : base(context)
         {
         }

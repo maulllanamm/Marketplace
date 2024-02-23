@@ -2,7 +2,7 @@
 
 namespace Marketplace.Enitities
 {
-    public class CustomerEntity : BaseGuidEntity
+    public class Customer : GuidEntity
     {
         public string username { get; set; }
         public string password_salt { get; set; }

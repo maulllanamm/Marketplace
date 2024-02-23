@@ -1,7 +1,10 @@
-﻿using Marketplace.Repositories.Base;
+﻿using Marketplace.Repositories;
+using Marketplace.Repositories.Base;
 using Marketplace.Requests;
 using Marketplace.Services.Interface;
+using Repositories;
 using Repositories.Base;
+using Repositories.Interface;
 
 namespace Marketplace
 {
@@ -9,10 +12,13 @@ namespace Marketplace
     {
         public static void AddCustomService(this IServiceCollection services)
         {
-            services.AddScoped(typeof(IBaseGuidRepository<>), typeof(BaseGuidRepository<>));
-            services.AddScoped(typeof(IBaseIdRepository<>), typeof(BaseIdRepository<>));
+            services.AddScoped(typeof(IGuidRepository<>), typeof(GuidRepository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<DataContext>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
     }
 }

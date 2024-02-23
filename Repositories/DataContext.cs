@@ -7,12 +7,12 @@ namespace Marketplace.Repositories
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-        public DbSet<CustomerEntity> Customer { get; set; }
+        public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Konfigurasi nama tabel
-            modelBuilder.Entity<CustomerEntity>().ToTable("customer");
+            modelBuilder.Entity<Customer>().ToTable("customer");
 
             base.OnModelCreating(modelBuilder);
 
