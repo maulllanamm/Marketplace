@@ -10,5 +10,6 @@ namespace Repositories.Interface
 {
     public interface ICustomerRepository : IGuidRepository<Customer>
     {
+        public Task<Customer> GetByUsername(string username);
     }
 }

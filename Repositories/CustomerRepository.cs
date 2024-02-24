@@ -9,11 +9,15 @@ namespace Marketplace.Repositories
 {
     public class CustomerRepository : GuidRepository<Customer>, ICustomerRepository
     {
-
+        private readonly DataContext _context;
         public CustomerRepository(DataContext context) : base(context)
         {
+            _context = context;
         }
-
+        public async Task<Customer> GetByUsername(string username)
+        {
+            return await _context.Customers.FirstOrDefaultAsync(x => x.username == username);
+        }
         //public async Task<List<UserEntity>> GetAll()
         //{
         //    return await _context.Users.ToListAsync();
