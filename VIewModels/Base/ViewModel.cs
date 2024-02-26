@@ -1,8 +1,8 @@
 ﻿namespace Marketplace.Responses.Base
 {
-    public class BaseViewModel
+    public class ViewModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public bool? IsDeleted { get; set; }
         public DateTimeOffset? CreatedDate { get; set; }
         public string CreatedBy { get; set; }

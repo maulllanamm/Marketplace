@@ -1,6 +1,8 @@
-﻿using Marketplace.Repositories;
+﻿using Bogus;
+using Marketplace.Repositories;
 using Marketplace.Repositories.Base;
 using Marketplace.Requests;
+using Marketplace.Responses;
 using Marketplace.Services.Interface;
 using Repositories.Base;
 using Repositories.ConfigUoW;
@@ -16,6 +18,13 @@ namespace Marketplace
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ICustomerService, CustomerService>();
+
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductService, ProductService>();
+
+            services.AddSingleton<Faker<ProductViewModel>, Faker<ProductViewModel>>();
+            services.AddScoped(typeof(IDummyGenerator<>), typeof(DummyGenerator<>));
+
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<DataContext>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
