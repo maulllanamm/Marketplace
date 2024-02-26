@@ -8,7 +8,7 @@ namespace Marketplace.Services.Interface
     {
         public Task<string> Login(string username, string password);
         public Task<CustomerViewModel> Register(CustomerViewModel request);
-        public Task<CustomerViewModel> Edit(CustomerViewModel request);
+        public Task<CustomerViewModel> Update(CustomerViewModel request);
         public Task<Guid> Delete(Guid id);
     }
 }

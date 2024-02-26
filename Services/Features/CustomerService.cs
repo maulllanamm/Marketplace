@@ -60,10 +60,10 @@ namespace Marketplace.Requests
             res.Password = "==HASH==";
             return res;
         }
-        public async Task<CustomerViewModel> Edit(CustomerViewModel request)
+        public async Task<CustomerViewModel> Update(CustomerViewModel request)
         {
             var customer = _mapper.Map<Customer>(request);
-            _baseRepo.Edit(customer);
+            _baseRepo.Update(customer);
             return request;
         }
 

@@ -31,7 +31,7 @@ namespace Marketplace.Controllers
         [HttpPut]
         public async Task<ActionResult> Put(CustomerViewModel request)
         {
-            var customer = await _customerService.Edit(request);
+            var customer = await _customerService.Update(request);
             return Ok(customer);
         }
 
