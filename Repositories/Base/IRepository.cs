@@ -9,6 +9,7 @@
         void Edit(Entity entity);
 
         //read side (could be in separate Readonly Generic Repository)
+        Task<List<Entity>> GetAll() ;
         Entity GetById(int id);
         IEnumerable<Entity> Filter();
         IEnumerable<Entity> Filter(Func<Entity, bool> predicate);

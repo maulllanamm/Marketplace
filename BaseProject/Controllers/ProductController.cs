@@ -16,6 +16,13 @@ namespace Marketplace.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult> GetAll()
+        {
+            var products = await _productService.GetAll();
+            return Ok(products);
+        }
+
+        [HttpGet]
         public async Task<ActionResult> GetProducts(string category)
         {
             var products = await _productService.GetProducts(category);

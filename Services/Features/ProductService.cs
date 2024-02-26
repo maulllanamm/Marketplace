@@ -43,6 +43,15 @@ namespace Marketplace.Requests
         }
 
 
+        public async Task<List<ProductViewModel>> GetAll()
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var products = await _repo.GetAll();
+            stopwatch.Stop();
+            return _mapper.Map<List<ProductViewModel>>(products.Take(10));
+        }
+
         public async Task<List<ProductViewModel>> GetProducts(string category)
         {
             var products = await _repo.GetProducts(category);

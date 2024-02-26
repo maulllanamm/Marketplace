@@ -116,6 +116,11 @@ namespace Marketplace.Repositories.Base
             editedEntity = entity;
         }
 
+        public Task<List<Entity>> GetAll()
+        {
+            return _context.Set<Entity>().AsNoTracking().ToListAsync();
+        }
+
         public Entity GetById(int id)
         {
             return _context.Set<Entity>().FirstOrDefault(e => e.id == id);
