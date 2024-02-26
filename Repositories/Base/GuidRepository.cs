@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Repositories.Base;
 using Repositories.ConfigUoW;
 using System.Data;
+using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Marketplace.Repositories.Base
@@ -19,6 +20,15 @@ namespace Marketplace.Repositories.Base
             _context = context;
         }
 
+        public async Task<List<GuidEntity>> GetAll()
+        {
+            return _context.Set<GuidEntity>().AsNoTracking().ToList();
+        }
+
+        public async Task<GuidEntity> GetById(Guid id)
+        {
+            return _context.Set<GuidEntity>().FirstOrDefault(e => e.id == id);
+        }
 
         public async Task<GuidEntity> Create(GuidEntity entity)
         {
@@ -48,25 +58,104 @@ namespace Marketplace.Repositories.Base
             return entity;
         }
 
-        public async Task<Guid> Delete(GuidEntity entity)
+        public async Task<int> CreateBulk(List<GuidEntity> entities)
         {
-            using(var unitOfWork = new UnitOfWork(_context))
+
+            entities = entities.Select(x =>
+            {
+                x.is_deleted ??= false;
+                x.created_by ??= "system";
+                x.created_date = DateTime.UtcNow;
+                x.modified_by ??= "system";
+                x.modified_date = DateTime.UtcNow;
+                return x;
+            }).ToList();
+
+            var splitSize = 10000;
+            var stopwatch = new Stopwatch();
+
+            using (var unitOfWork = new UnitOfWork(_context))
             {
                 try
                 {
                     unitOfWork.BeginTransaction();
-                    _context.Set<GuidEntity>().Remove(entity);
-                    unitOfWork.SaveChanges();
+                    if (entities.Count >= 100000)
+                    {
+                        splitSize *= 2;
+                    }
+
+                    var batchs = entities
+                                .Select((entities, index) => (entities, index))
+                                .GroupBy(pair => pair.index / splitSize)
+                                .Select(group => group.Select(pair => pair.entities).ToList())
+                                .ToList();
+
+                    foreach (var batch in batchs)
+                    {
+                        await _context.BulkInsertAsync(batch);
+                    }
+
 
                     unitOfWork.Commit();
                 }
                 catch (Exception)
                 {
                     unitOfWork.Rollback();
-                    throw;
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
                 }
             }
-            return entity.id;
+            return entities.Count();
+        }
+
+
+        public async Task<GuidEntity> Update(GuidEntity entity)
+        {
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    var editedEntity = _context.Set<GuidEntity>().FirstOrDefault(e => e.id == entity.id);
+
+                    if (editedEntity != null)
+                    {
+                        // Update properti dari editedEntity dengan nilai dari entity yang baru
+                        _context.Entry(editedEntity).CurrentValues.SetValues(entity);
+
+                        unitOfWork.BeginTransaction();
+                        _context.SaveChanges();
+                        unitOfWork.Commit();
+                    }
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                }
+            }
+
+
+            return entity;
+        }
+
+        public async Task<int> UpdateBulk(List<GuidEntity> entities)
+        {
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    unitOfWork.BeginTransaction();
+                    _context.Set<GuidEntity>().BulkUpdate(entities);
+                    unitOfWork.Commit();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                }
+            }
+
+
+            return entities.Count();
         }
 
         public async Task<Guid> Delete(Guid id)
@@ -80,59 +169,91 @@ namespace Marketplace.Repositories.Base
                     {
                         unitOfWork.BeginTransaction();
                         _context.Set<GuidEntity>().Remove(entityToDelete);
-                        unitOfWork.SaveChanges();
-
                         unitOfWork.Commit();
-                  
                     }
                     catch (Exception)
                     {
                         unitOfWork.Rollback();
-                        throw;
+                        throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
                     }
                 }
             }
+
             return id;
         }
 
-        public async Task<GuidEntity> Edit(GuidEntity entity)
+        public async Task<int> DeleteBulk(List<GuidEntity> entities)
         {
             using (var unitOfWork = new UnitOfWork(_context))
             {
                 try
                 {
                     unitOfWork.BeginTransaction();
-                    var editedEntity = _context.Set<GuidEntity>().FirstOrDefault(e => e.id == entity.id);
-                    if (editedEntity == null)
-                    {
-                        throw new Exception("Entity not found");
-                    }
-
-                    // Mengupdate nilai properti dari editedEntity dengan nilai dari entity
-                    _context.Entry(editedEntity).CurrentValues.SetValues(entity);
-
-                    editedEntity.modified_date = DateTime.UtcNow;
-                    editedEntity.created_date = DateTime.UtcNow;
-                    editedEntity.created_by ??= "system";
-                    editedEntity.modified_by ??= "system";
-                    editedEntity.is_deleted ??= false;
-
-                    unitOfWork.SaveChanges();
+                    _context.Set<GuidEntity>().BulkDelete(entities);
                     unitOfWork.Commit();
                 }
                 catch (Exception)
                 {
                     unitOfWork.Rollback();
-                    throw;
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
                 }
             }
-            return entity;
+
+            return entities.Count();
         }
 
-
-        public GuidEntity GetById(Guid id)
+        public async Task<Guid> SoftDelete(Guid id)
         {
-            return _context.Set<GuidEntity>().FirstOrDefault(e => e.id == id);
+            var entityToDelete = _context.Set<GuidEntity>().FirstOrDefault(e => e.id == id);
+            if (entityToDelete != null)
+            {
+                using (var unitOfWork = new UnitOfWork(_context))
+                {
+                    try
+                    {
+                        unitOfWork.BeginTransaction();
+                        entityToDelete.is_deleted = true;
+                        _context.SaveChanges();
+                        unitOfWork.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        unitOfWork.Rollback();
+                        throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                    }
+                }
+            }
+
+            return id;
+        }
+
+        public async Task<int> SoftDeleteBulk(List<GuidEntity> entities)
+        {
+            var listId = entities.Select(x => x.id).ToList();
+            var entitiesToDelete = _context.Set<GuidEntity>().Where(x => listId.Contains(x.id)).ToList();
+            if (entitiesToDelete != null)
+            {
+                using (var unitOfWork = new UnitOfWork(_context))
+                {
+                    try
+                    {
+                        unitOfWork.BeginTransaction();
+                        entitiesToDelete = entitiesToDelete.Select(x =>
+                        {
+                            x.is_deleted = true;
+                            return x;
+                        }).ToList();
+                        _context.SaveChanges();
+                        unitOfWork.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        unitOfWork.Rollback();
+                        throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                    }
+                }
+            }
+            return entitiesToDelete.Count();
         }
 
         public IEnumerable<GuidEntity> Filter()
@@ -146,63 +267,5 @@ namespace Marketplace.Repositories.Base
         }
 
         public void SaveChanges() => _context.SaveChanges();
-
-        //public virtual async Task<List<GuidEntity>> GetAll()
-        //{
-        //    return await _context.Set<GuidEntity>().ToListAsync();
-        //}
-
-        //public virtual async Task<GuidEntity> Get(Guid id)
-        //{
-        //    return await _context.Set<GuidEntity>().FindAsync(id);
-        //}
-
-        //public virtual async Task Create(GuidEntity item)
-        //{
-        //    item.id = Guid.NewGuid();
-        //    item.created_date = DateTime.UtcNow;
-        //    item.modified_date = DateTime.UtcNow;
-        //    item.is_deleted = false;
-        //    if (item.created_by == null || item.created_by == string.Empty)
-        //    {
-        //        item.created_by = "system";
-        //    }
-        //    if (item.modified_by == null || item.modified_by == string.Empty)
-        //    {
-        //        item.modified_by = "system";
-        //    }
-        //    await _dbSet.AddAsync(item);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public virtual async void CreateBulk(List<GuidEntity> items)
-        //{
-        //    items = items
-        //        .Select(x =>
-        //        {
-        //            x.id = x.id == null || x.id == Guid.Empty ? Guid.NewGuid() : x.id;
-        //            x.is_deleted ??= false;
-        //            x.created_by ??= "system";
-        //            x.modified_by ??= "system";
-        //            return x;
-        //        })
-        //        .ToList();
-        //    _context.AddRangeAsync(items);
-        //    await _context.BulkSaveChangesAsync();
-        //}
-
-
-        //public virtual async void Update(GuidEntity item)
-        //{
-        //    _context.Update(item);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public virtual async void Delete(Guid id)
-        //{
-        //    var item = await _context.Set<GuidEntity>().FindAsync(id);
-        //    _context.Remove(item);
-        //    await _context.SaveChangesAsync();
-        //}
     }
 }

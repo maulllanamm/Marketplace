@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Marketplace.Repositories.Base;
-using Marketplace.Responses.Base;
 using Repositories.Base;
-using Sqids;
+using System.Diagnostics;
 
 namespace Marketplace.Services.Base
 {
@@ -18,25 +16,74 @@ namespace Marketplace.Services.Base
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _repository = repository;
         }
+        public async Task<List<ViewModel>> GetAll()
+        {
+            var entities = await _repository.GetAll();
+            return _mapper.Map<List<ViewModel>>(entities);
+        }
+        public async Task<ViewModel> GetById(int id)
+        {
+            var entity = await _repository.GetById(id);
+            return _mapper.Map<ViewModel>(entity);
+        }
+        public async Task<ViewModel> Create(ViewModel viewModel)
+        {
+            var entity = _mapper.Map<Entity>(viewModel);
+            var res = await _repository.Create(entity);
+            return _mapper.Map<ViewModel>(res);
+        }
+        public async Task<string> CreateBulk(List<ViewModel> viewModels)
+        {
+            var entities = _mapper.Map<List<Entity>>(viewModels);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var res = await _repository.CreateBulk(entities);
+            stopwatch.Stop();
+            return $"Success create: {res} data , Elapsed time: {stopwatch.Elapsed}";
+        }
 
-        public void Create(Responses.Base.ViewModel viewModel)
+        public async Task<ViewModel> Update(ViewModel viewModel)
         {
             var entity = _mapper.Map<Entity>(viewModel);
-            _repository.Create(entity);
+            var res = await _repository.Update(entity);
+            return _mapper.Map<ViewModel>(res);
         }
-        public void Delete(Responses.Base.ViewModel viewModel)
+
+        public async Task<string> UpdateBulk(List<ViewModel> viewModels)
         {
-            var entity = _mapper.Map<Entity>(viewModel);
-            _repository.Delete(entity);
+            var entities = _mapper.Map<List<Entity>>(viewModels);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var res = await _repository.UpdateBulk(entities);
+            stopwatch.Stop();
+            return $"Success update: {res} data , Elapsed time: {stopwatch.Elapsed}";
         }
-        public void Delete(int id)
+        public async Task<int> Delete(int id)
         {
-            _repository.Delete(id);
+            return await _repository.Delete(id);
         }
-        public void Edit(Responses.Base.ViewModel viewModel)
+        public async Task<string> DeleteBulk(List<ViewModel> viewModels)
         {
-            var entity = _mapper.Map<Entity>(viewModel);
-            _repository.Update(entity);
+            var entities = _mapper.Map<List<Entity>>(viewModels);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var res = await _repository.DeleteBulk(entities);
+            stopwatch.Stop();
+            return $"Success delete: {res} data , Elapsed time: {stopwatch.Elapsed}";
+        }
+
+        public async Task<int> SoftDelete(int id)
+        {
+            return await _repository.SoftDelete(id);
+        }
+        public async Task<string> SoftDeleteBulk(List<ViewModel> viewModels)
+        {
+            var entities = _mapper.Map<List<Entity>>(viewModels);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var res = await _repository.SoftDeleteBulk(entities);
+            stopwatch.Stop();
+            return $"Success delete: {res} data , Elapsed time: {stopwatch.Elapsed}";
         }
     }
 }

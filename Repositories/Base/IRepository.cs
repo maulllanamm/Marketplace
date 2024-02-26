@@ -4,14 +4,14 @@
     {
         Task<Entity> Create(Entity entity);
         Task<int> CreateBulk(List<Entity> entites);
-        void Delete(Entity entity);
-        void Delete(int id);
+        Task<int> Delete(int id);
+        Task<int> DeleteBulk(List<Entity> entites);        
+        Task<int> SoftDelete(int id);
+        Task<int> SoftDeleteBulk(List<Entity> entites);
         Task<Entity> Update(Entity entity);
-        Task<int> UpdateBulk();
-
-        //read side (could be in separate Readonly Generic Repository)
+        Task<int> UpdateBulk(List<Entity> entites);
         Task<List<Entity>> GetAll() ;
-        Entity GetById(int id);
+        Task<Entity> GetById(int id);
         IEnumerable<Entity> Filter();
         IEnumerable<Entity> Filter(Func<Entity, bool> predicate);
 

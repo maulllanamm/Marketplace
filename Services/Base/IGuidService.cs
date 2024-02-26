@@ -6,9 +6,15 @@ namespace Marketplace.Services.Base
     public interface IGuidService<ViewModel>
         where ViewModel : GuidViewModel, new()
     {
-        Task Create(GuidViewModel viewModel);
-        void Delete(GuidViewModel viewModel);
-        void Delete(Guid id);
-        void Edit(GuidViewModel viewModel);
+        public Task<List<ViewModel>> GetAll();
+        public Task<ViewModel> GetById(Guid id);
+        public Task<ViewModel> Create(ViewModel viewModel);
+        public Task<string> CreateBulk(List<ViewModel> viewModels);
+        public Task<ViewModel> Update(ViewModel viewModel);
+        public Task<string> UpdateBulk(List<ViewModel> viewModels);
+        public Task<Guid> Delete(Guid id);
+        public Task<string> DeleteBulk(List<ViewModel> viewModels);
+        public Task<Guid> SoftDelete(Guid id);
+        public Task<string> SoftDeleteBulk(List<ViewModel> viewModels);
     }
 }

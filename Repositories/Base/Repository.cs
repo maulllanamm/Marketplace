@@ -6,6 +6,7 @@ using Entities.Base;
 using Repositories.ConfigUoW;
 using Marketplace.Enitities;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Marketplace.Repositories.Base
 {
@@ -17,6 +18,15 @@ namespace Marketplace.Repositories.Base
         public Repository(DataContext context)
         {
             _context = context;
+        }
+        public async Task<List<Entity>> GetAll()
+        {
+            return _context.Set<Entity>().AsNoTracking().ToList();
+        }
+
+        public async Task<Entity> GetById(int id)
+        {
+            return _context.Set<Entity>().FirstOrDefault(e => e.id == id);
         }
 
         public async Task<Entity> Create(Entity entity)
@@ -96,19 +106,6 @@ namespace Marketplace.Repositories.Base
             return entities.Count();
         }
 
-        public void Delete(Entity entity)
-        {
-            _context.Set<Entity>().Remove(entity);
-        }
-
-        public void Delete(int id)
-        {
-            var entityToDelete = _context.Set<Entity>().FirstOrDefault(e => e.id == id);
-            if (entityToDelete != null)
-            {
-                _context.Set<Entity>().Remove(entityToDelete);
-            }
-        }
 
         public async Task<Entity> Update(Entity entity)
         {
@@ -139,20 +136,14 @@ namespace Marketplace.Repositories.Base
             return entity;
         }
 
-        public async Task<int> UpdateBulk()
+        public async Task<int> UpdateBulk(List<Entity> entities)
         {
-            var products = await GetAll();
             using (var unitOfWork = new UnitOfWork(_context))
             {
                 try
                 {
                     unitOfWork.BeginTransaction();
-                    products = products.Select(x => {
-                        x.modified_date = DateTime.UtcNow;
-                        return x;
-                    }).ToList();
-                    _context.Set<Entity>().BulkUpdate(products);
-
+                    _context.Set<Entity>().BulkUpdate(entities);
                     unitOfWork.Commit();
                 }
                 catch (Exception)
@@ -162,18 +153,106 @@ namespace Marketplace.Repositories.Base
                 }
             }
 
-            
-            return products.Count();
+
+            return entities.Count();
         }
 
-        public Task<List<Entity>> GetAll()
+        public async Task<int> Delete(int id)
         {
-            return _context.Set<Entity>().AsNoTracking().ToListAsync();
+            var entityToDelete = _context.Set<Entity>().FirstOrDefault(e => e.id == id);
+            if (entityToDelete != null)
+            {
+                using (var unitOfWork = new UnitOfWork(_context))
+                {
+                    try
+                    {
+                        unitOfWork.BeginTransaction();
+                        _context.Set<Entity>().Remove(entityToDelete);
+                        unitOfWork.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        unitOfWork.Rollback();
+                        throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                    }
+                }
+            }
+
+            return id;
         }
 
-        public Entity GetById(int id)
+        public async Task<int> DeleteBulk(List<Entity> entities)
         {
-            return _context.Set<Entity>().FirstOrDefault(e => e.id == id);
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    unitOfWork.BeginTransaction();
+                    _context.Set<Entity>().BulkDelete(entities);
+                    unitOfWork.Commit();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                }
+            }
+
+            return entities.Count();
+        }
+
+        public async Task<int> SoftDelete(int id)
+        {
+            var entityToDelete = _context.Set<Entity>().FirstOrDefault(e => e.id == id);
+            if (entityToDelete != null)
+            {
+                using (var unitOfWork = new UnitOfWork(_context))
+                {
+                    try
+                    {
+                        unitOfWork.BeginTransaction();
+                        entityToDelete.is_deleted = true;
+                        _context.SaveChanges();
+                        unitOfWork.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        unitOfWork.Rollback();
+                        throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                    }
+                }
+            }
+
+            return id;
+        }
+
+        public async Task<int> SoftDeleteBulk(List<Entity> entities)
+        {
+            var listId = entities.Select(x => x.id).ToList();
+            var entitiesToDelete = _context.Set<Entity>().Where(x => listId.Contains(x.id)).ToList();
+            if (entitiesToDelete != null)
+            {
+                using (var unitOfWork = new UnitOfWork(_context))
+                {
+                    try
+                    {
+                        unitOfWork.BeginTransaction();
+                        entitiesToDelete = entitiesToDelete.Select(x =>
+                        {
+                            x.is_deleted = true;
+                            return x;
+                        }).ToList();
+                        _context.SaveChanges();
+                        unitOfWork.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        unitOfWork.Rollback();
+                        throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                    }
+                }
+            }
+            return entitiesToDelete.Count();
         }
 
         public IEnumerable<Entity> Filter()

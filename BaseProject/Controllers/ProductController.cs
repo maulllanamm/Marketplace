@@ -45,5 +45,11 @@ namespace Marketplace.Controllers
             return Ok(customer);
         }
 
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var customer = await _productService.Delete(id);
+            return Ok(customer);
+        }
     }
 }
