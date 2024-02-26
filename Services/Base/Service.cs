@@ -36,7 +36,7 @@ namespace Marketplace.Services.Base
         public void Edit(Responses.Base.ViewModel viewModel)
         {
             var entity = _mapper.Map<Entity>(viewModel);
-            _repository.Edit(entity);
+            _repository.Update(entity);
         }
     }
 }

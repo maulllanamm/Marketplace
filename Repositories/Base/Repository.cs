@@ -110,10 +110,60 @@ namespace Marketplace.Repositories.Base
             }
         }
 
-        public void Edit(Entity entity)
+        public async Task<Entity> Update(Entity entity)
         {
-            var editedEntity = _context.Set<Entity>().FirstOrDefault(e => e.id == entity.id);
-            editedEntity = entity;
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    var editedEntity = _context.Set<Entity>().FirstOrDefault(e => e.id == entity.id);
+
+                    if (editedEntity != null)
+                    {
+                        // Update properti dari editedEntity dengan nilai dari entity yang baru
+                        _context.Entry(editedEntity).CurrentValues.SetValues(entity);
+
+                        unitOfWork.BeginTransaction();
+                        _context.SaveChanges();
+                        unitOfWork.Commit();
+                    }
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                }
+            }
+
+
+            return entity;
+        }
+
+        public async Task<int> UpdateBulk()
+        {
+            var products = await GetAll();
+            using (var unitOfWork = new UnitOfWork(_context))
+            {
+                try
+                {
+                    unitOfWork.BeginTransaction();
+                    products = products.Select(x => {
+                        x.modified_date = DateTime.UtcNow;
+                        return x;
+                    }).ToList();
+                    _context.Set<Entity>().BulkUpdate(products);
+
+                    unitOfWork.Commit();
+                }
+                catch (Exception)
+                {
+                    unitOfWork.Rollback();
+                    throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
+                }
+            }
+
+            
+            return products.Count();
         }
 
         public Task<List<Entity>> GetAll()

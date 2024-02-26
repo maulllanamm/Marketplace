@@ -31,16 +31,7 @@ namespace Marketplace.Requests
             _dummyGenerator = dummyGenerator;
         }
 
-        public async Task<string> GenerateDummy(int amount)
-        {
-            var products = _dummyGenerator.Generate(amount, ProductFaker);
-            var map = _mapper.Map<List<Product>>(products);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var entities = await _repo.CreateBulk(map);
-            stopwatch.Stop();
-            return $"Success generate: {entities} data , Elapsed time: {stopwatch.Elapsed}";
-        }
+
 
 
         public async Task<List<ProductViewModel>> GetAll()
@@ -57,5 +48,23 @@ namespace Marketplace.Requests
             var products = await _repo.GetProducts(category);
             return _mapper.Map<List<ProductViewModel>>(products);
         }
+        public async Task<string> GenerateDummy(int amount)
+        {
+            var products = _dummyGenerator.Generate(amount, ProductFaker);
+            var map = _mapper.Map<List<Product>>(products);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var entities = await _repo.CreateBulk(map);
+            stopwatch.Stop();
+            return $"Success generate: {entities} data , Elapsed time: {stopwatch.Elapsed}";
+        }
+
+        public async Task<string> Update(ProductViewModel product)
+        {
+            var map = _mapper.Map<Product>(product);
+            var entities = await _repo.Update(map);
+            return $"";
+        }
+
     }
 }

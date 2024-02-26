@@ -1,3 +1,4 @@
+using Marketplace.Requests;
 using Marketplace.Responses;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,14 @@ namespace Marketplace.Controllers
         {
             var products = await _productService.GenerateDummy(amount);
             return Ok(products);
+        }
+
+
+        [HttpPut]
+        public async Task<ActionResult> Put(ProductViewModel product)
+        {
+            var customer = await _productService.Update(product);
+            return Ok(customer);
         }
 
     }

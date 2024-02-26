@@ -6,7 +6,8 @@
         Task<int> CreateBulk(List<Entity> entites);
         void Delete(Entity entity);
         void Delete(int id);
-        void Edit(Entity entity);
+        Task<Entity> Update(Entity entity);
+        Task<int> UpdateBulk();
 
         //read side (could be in separate Readonly Generic Repository)
         Task<List<Entity>> GetAll() ;
