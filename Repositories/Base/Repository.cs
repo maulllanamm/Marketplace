@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.Base;
 using Entities.Base;
 using Repositories.ConfigUoW;
+using Marketplace.Enitities;
+using System.Diagnostics;
 
 namespace Marketplace.Repositories.Base
 {
@@ -45,7 +47,7 @@ namespace Marketplace.Repositories.Base
             return entity;
         }
 
-        public async Task<List<Entity>> CreateBulk(List<Entity> entities)
+        public async Task<int> CreateBulk(List<Entity> entities)
         {
 
             entities = entities.Select(x =>
@@ -57,14 +59,31 @@ namespace Marketplace.Repositories.Base
                 x.modified_date = DateTime.UtcNow;
                 return x;
             }).ToList();
+
+            var splitSize = 10000;
+            var stopwatch = new Stopwatch();
+
             using (var unitOfWork = new UnitOfWork(_context))
             {
                 try
                 {
                     unitOfWork.BeginTransaction();
+                    if (entities.Count >= 100000)
+                    {
+                        splitSize *= 2;
+                    }
 
-                    await _context.Set<Entity>().AddRangeAsync(entities);
-                    unitOfWork.SaveChanges();
+                    var batchs = entities
+                                .Select((entities, index) => (entities, index))
+                                .GroupBy(pair => pair.index / splitSize)
+                                .Select(group => group.Select(pair => pair.entities).ToList())
+                                .ToList();
+
+                    foreach (var batch in batchs)
+                    {
+                        await _context.BulkInsertAsync(batch);
+                    }
+
 
                     unitOfWork.Commit();
                 }
@@ -74,7 +93,7 @@ namespace Marketplace.Repositories.Base
                     throw; // Re-throw exception untuk menyebar ke lapisan yang lebih tinggi jika perlu
                 }
             }
-            return entities;
+            return entities.Count();
         }
 
         public void Delete(Entity entity)

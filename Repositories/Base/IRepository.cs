@@ -3,7 +3,7 @@
     public interface IRepository<Entity> where Entity : class
     {
         Task<Entity> Create(Entity entity);
-        Task<List<Entity>> CreateBulk(List<Entity> entites);
+        Task<int> CreateBulk(List<Entity> entites);
         void Delete(Entity entity);
         void Delete(int id);
         void Edit(Entity entity);

@@ -6,6 +6,7 @@ using Marketplace.Services.Base;
 using Marketplace.Services.Interface;
 using Repositories.Base;
 using Repositories.Interface;
+using System.Diagnostics;
 
 namespace Marketplace.Requests
 {
@@ -30,13 +31,18 @@ namespace Marketplace.Requests
             _dummyGenerator = dummyGenerator;
         }
 
-        public async Task<List<ProductViewModel>> GenerateDummy(int amount)
+        public async Task<string> GenerateDummy(int amount)
         {
             var products = _dummyGenerator.Generate(amount, ProductFaker);
             var map = _mapper.Map<List<Product>>(products);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var entities = await _repo.CreateBulk(map);
-            return _mapper.Map<List<ProductViewModel>>(entities);
+            stopwatch.Stop();
+            return $"Success generate: {entities} data , Elapsed time: {stopwatch.Elapsed}";
         }
+
+
         public async Task<List<ProductViewModel>> GetProducts(string category)
         {
             var products = await _repo.GetProducts(category);

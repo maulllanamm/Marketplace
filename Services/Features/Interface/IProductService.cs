@@ -7,6 +7,6 @@ namespace Marketplace.Services.Interface
     public interface IProductService : IService<ProductViewModel>
     {
         public Task<List<ProductViewModel>> GetProducts(string category);
-        public Task<List<ProductViewModel>> GenerateDummy(int amount);
+        public Task<string> GenerateDummy(int amount);
     }
 }
