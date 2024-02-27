@@ -1,7 +1,9 @@
 using Marketplace.Requests;
 using Marketplace.Responses;
 using Marketplace.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ViewModels.Constants;
 
 namespace Marketplace.Controllers
 {
@@ -15,14 +17,14 @@ namespace Marketplace.Controllers
         {
             _productService = productService;
         }
-
+        [Authorize(PermissionConst.ReadCustomer)]
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
             var products = await _productService.GetAll();
             return Ok(products);
         }
-
+        [Authorize(PermissionConst.ReadCustomer)]
         [HttpGet]
         public async Task<ActionResult> GetProducts(string category)
         {

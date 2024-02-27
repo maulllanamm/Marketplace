@@ -22,6 +22,13 @@ namespace Marketplace
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();
 
+            services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+            services.AddScoped<IShoppingCartService, ShoppingCartService>();
+
+            services.AddScoped<IRoleRepository, RoleRepository>();
+
+            services.AddScoped<IAuthService, AuthService>();
+
             services.AddSingleton<Faker<ProductViewModel>, Faker<ProductViewModel>>();
             services.AddScoped(typeof(IDummyGenerator<>), typeof(DummyGenerator<>));
 
