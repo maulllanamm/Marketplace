@@ -26,7 +26,8 @@ namespace Marketplace.Controllers
             return Ok(products);
         }
 
-        [HttpGet, Authorize(Roles = "1")]
+        [HttpGet]
+        [Authorize]
         public async Task<ActionResult> GetProducts(string category)
         {
             var products = await _productService.GetProducts(category);

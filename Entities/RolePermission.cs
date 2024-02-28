@@ -5,8 +5,9 @@ namespace Marketplace.Enitities
 {
     public class RolePermission
     {
-        public int id { get; set; }
+        [Key]
         public int role_id { get; set; }
-        public string permission { get; set; }
+        [Key]
+        public int permission_id { get; set; }
     }
 }

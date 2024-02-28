@@ -31,6 +31,9 @@ namespace Marketplace
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IPermissionService, PermissionService>();
 
+            services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+            services.AddScoped<IRolePermissionService, RolePermissionService>();
+
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddSingleton<Faker<ProductViewModel>, Faker<ProductViewModel>>();

@@ -1,5 +1,6 @@
 using Marketplace;
 using Marketplace.Repositories;
+using Marketplace.Requests;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +46,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(token.Secret)),
             ValidateIssuer = false,
             ValidateAudience = false,
+            ValidIssuer = token.Issuer,
+            ValidAudience = token.Audience,
         };
     });
 
@@ -74,8 +77,8 @@ if (app.Environment.IsDevelopment())
     });
 
 }
-//app.UseSwaggerAuthorized();
-//app.UseMiddleware<JwtMiddleware>();
+app.UseSwaggerAuthorized();
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 

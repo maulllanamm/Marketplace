@@ -29,7 +29,7 @@ namespace Marketplace.Controllers
                 return BadRequest("Username or password did not match.");
             }
 
-            var accessToken = await _service.GenerateAccessToken(customer.Username, customer.Id, customer.RoleId);
+            var accessToken = await _service.GenerateAccessToken(customer.Username, customer.RoleName);
             var response = new AuthViewModel
             {
                 CustomerId = customer.Id,      

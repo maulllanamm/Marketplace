@@ -6,7 +6,7 @@ namespace Marketplace.Enitities
     public class Customer : GuidEntity
     {
         public int role_id { get; set; }
-        public string role_name { get; set; }
+        public string? role_name { get; set; }
         public string username { get; set; }
         public string password_salt { get; set; }
         public string password_hash { get; set; }

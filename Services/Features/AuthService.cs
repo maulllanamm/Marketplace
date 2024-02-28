@@ -21,9 +21,9 @@ namespace Marketplace.Requests
     {
         private readonly IGuidRepository<Customer> _baseRepo;
         private readonly ICustomerRepository _customerRepo;
-        private readonly ICustomerService _customer;
         private readonly IRoleService _role;
         private readonly IPermissionService _permission;
+        private readonly IRolePermissionService _rolePermission;
         private readonly IHttpContextAccessor _httpCont;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
@@ -31,18 +31,18 @@ namespace Marketplace.Requests
         private readonly string _papper = "v81IKJ3ZBFgwc2AdnYeOLhUn9muUtIQ0";
         private readonly int _iteration = 3;
 
-        public AuthService(IGuidRepository<Customer> baseRepo, ICustomerRepository repo, ICustomerService customer,
-            IRoleService role, IPermissionService permission, IHttpContextAccessor httpCont, IPasswordHasher passwordHasher, IMapper mapper, IOptions<JwtModel> jwt)
+        public AuthService(IGuidRepository<Customer> baseRepo, ICustomerRepository repo,
+            IRoleService role, IPermissionService permission, IHttpContextAccessor httpCont, IPasswordHasher passwordHasher, IMapper mapper, IOptions<JwtModel> jwt, IRolePermissionService rolePermission)
         {
             _baseRepo = baseRepo;
             _customerRepo = repo;
-            _customer = customer;
             _role = role;
             _permission = permission;
             _httpCont = httpCont;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
             _jwt = jwt.Value;
+            _rolePermission = rolePermission;
         }
 
         public async Task<CustomerViewModel> Login(LoginViewModal request)
@@ -60,14 +60,15 @@ namespace Marketplace.Requests
             }
             return _mapper.Map<CustomerViewModel>(customer);
         }
-        public async Task<string> GenerateAccessToken(string username, Guid customerId, int roleId)
+        public async Task<string> GenerateAccessToken(string username, string roleName)
         {
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.Role, roleId.ToString()),
+                new Claim(ClaimTypes.Role, roleName.ToString()),
             };
 
             var tokenDescriptor = new JwtSecurityToken
@@ -75,7 +76,7 @@ namespace Marketplace.Requests
                     _jwt.Issuer,
                     _jwt.Audience,
                     claims: claims,
-                    expires : DateTime.Now.AddMinutes(_jwt.ExpiryMinutes),
+                    expires: DateTime.Now.AddMinutes(_jwt.ExpiryMinutes),
                     signingCredentials: credential
                 );
 
@@ -109,37 +110,33 @@ namespace Marketplace.Requests
         {
             var user = _httpCont?.HttpContext?.User;
             var username = user?.FindFirst(ClaimTypes.Name)?.Value;
+            var role = user?.FindFirst(ClaimTypes.Role)?.Value;
             var path = _httpCont.HttpContext.Request.Path.Value;
             var method = _httpCont.HttpContext.Request.Method.ToString();
 
             var splitPath = path.Split('/');
-
-            var allUser = await _customer.GetAll();
-            var allPermission = await _permission.GetAll();
-            var allRole = await _role.GetAll();
-
-            var usr = allUser.FirstOrDefault(x => x.Username == username);
-            if(usr == null) {
-                return true;
-            }
-            if(usr.RoleId == 1)
+            if (role == "Administrator")
             {
                 return true;
             }
+            var roles = await _role.GetAll();
+            var permissions = await _permission.GetAll();
+            var rolePermissions = await _rolePermission.GetAll();
 
-            bool result;
-            if (splitPath.Length < 2)
+            var myRole = roles.FirstOrDefault(x => x.Name == role);
+            if(myRole == null)
             {
-                result = true;
+                return true;
             }
-            else
+            var myRolePermissions = rolePermissions.Where(x => x.role_id == myRole.Id).Select(x => x.permission_id).ToList();
+            var myPermissions = permissions.Where(x => myRolePermissions.Contains(x.Id));
+
+            if (myPermissions.FirstOrDefault(x => x.HttpMethod == method && x.Path == path) == null)
             {
-                var controller = splitPath[0];
-                var action = splitPath[1];
-
+                return false;
             }
-
             return true;
+
         }
     }
 }

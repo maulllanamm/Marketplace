@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -31,9 +32,8 @@ namespace Marketplace.Requests
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             if (token != null)
             {
-                var (userName, roleId) = ValidateAccessToken(token);
-                context.Items["UserName"] = userName;
-                context.Items["RoleId"] = roleId;
+                var claims = ValidateAccessToken(token);
+                context.User = claims;
             }
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -52,7 +52,7 @@ namespace Marketplace.Requests
             }
         }
 
-        private (string? userId, string? roleId) ValidateAccessToken(string accessToken)
+        private ClaimsPrincipal ValidateAccessToken(string accessToken)
         {
             try
             {
@@ -71,15 +71,22 @@ namespace Marketplace.Requests
                     ClockSkew = TimeSpan.Zero
                 }, out var validatedToken);
 
-                var jwtToken = validatedToken as JwtSecurityToken;
 
-                var userName = jwtToken?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
-                var roleId = jwtToken?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
-                return (userName, roleId);
+                var jsonToken = validatedToken as JwtSecurityToken;
+
+                if (jsonToken != null)
+                {
+                    var claimsIdentity = new ClaimsIdentity(jsonToken.Claims, "jwt");
+
+                    // Set the claims to context.User
+                    return new ClaimsPrincipal(claimsIdentity);
+                }
+
+                return new ClaimsPrincipal();
             }
             catch
             {
-                return (null, null);
+                return null;
             }
         }
     }
