@@ -26,6 +26,10 @@ namespace Marketplace
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
 
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRoleService, RoleService>();
+
+            services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IPermissionService, PermissionService>();
 
             services.AddScoped<IAuthService, AuthService>();
 
@@ -35,6 +39,7 @@ namespace Marketplace
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<DataContext>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddHttpContextAccessor();
         }
     }
 }

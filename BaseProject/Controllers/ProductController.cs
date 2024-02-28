@@ -17,15 +17,16 @@ namespace Marketplace.Controllers
         {
             _productService = productService;
         }
-        [Authorize(PermissionConst.ReadCustomer)]
+
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
             var products = await _productService.GetAll();
             return Ok(products);
         }
-        [Authorize(PermissionConst.ReadCustomer)]
-        [HttpGet]
+
+        [HttpGet, Authorize(Roles = "1")]
         public async Task<ActionResult> GetProducts(string category)
         {
             var products = await _productService.GetProducts(category);

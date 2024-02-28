@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ViewModels.Constants
+namespace ViewModels.ants
 {
-    public class JwtConst
+    public class JwtModel
     {
-        public const string Secret = "65nrx97WPnLiotrT1MSdSDjUOPmR3XtkgsuPRtqc2bmVkS6mCnzq8AMf2hySraxN";
-        public const string Issuer = "https://juldhais.net";
-        public const string Audience = "https://juldhais.net";
-        public const int ExpiryMinutes = 60;
-        public const string CustomerId = "cid";
-        public const string RoleId = "rid";
+        public  string Secret { get; set; }
+        public  string Issuer { get; set; }
+        public  string Audience { get; set; }
+        public  int ExpiryMinutes { get; set; }
+        public  int RefreshExpiration { get; set; }
+        public  string CustomerId { get; set; }
+        public  string RoleId { get; set; }
     }
 }

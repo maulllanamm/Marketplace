@@ -25,21 +25,21 @@ namespace Middleware
 
             var db = context.HttpContext.RequestServices.GetService(typeof(DataContext)) as DataContext;
 
-            if (!ValidatePrivilege(Convert.ToInt32(roleId), db))
-                throw new ForbiddenException();
+            //if (!ValidatePrivilege(Convert.ToInt32(roleId), db))
+            //    throw new ForbiddenException();
         }
 
-        private bool ValidatePrivilege(int? roleId, DataContext? db)
-        {
-            if (roleId == null || db == null) return false;
+        //private bool ValidatePrivilege(int? roleId, DataContext? db)
+        //{
+        //    if (roleId == null || db == null) return false;
 
-            var roleExist = db.Roles.Any(x => x.id == roleId);
-            if (!roleExist) return false;
+        //    var roleExist = db.Roles.Any(x => x.id == roleId);
+        //    if (!roleExist) return false;
 
-            if (string.IsNullOrWhiteSpace(_permission)) return true;
+        //    if (string.IsNullOrWhiteSpace(_permission)) return true;
 
-            return db.RolePermissions
-                .Any(x => x.role_id == roleId && x.permission == _permission);
-        }
+        //    return db.RolePermissions
+        //        .Any(x => x.role_id == roleId && x.permission == _permission);
+        //}
     }
 }

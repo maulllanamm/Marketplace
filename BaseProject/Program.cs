@@ -1,48 +1,52 @@
 using Marketplace;
 using Marketplace.Repositories;
-using Marketplace.Requests;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using System.Text;
+using ViewModels.ants;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Database");
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Scoped);
 builder.Services.AddCustomService();
 builder.Services.AddAutoMapper(typeof(AutoMapConfig));
+
+// ngambil token management dari appseting.json
+builder.Services.Configure<JwtModel>(builder.Configuration.GetSection("TokenManagement"));
+var token = builder.Configuration.GetSection("TokenManagement").Get<JwtModel>();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(
-    c =>
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+        Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
 
-        // Tambahkan definisi autentikasi di sini
-        c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            Type = SecuritySchemeType.ApiKey,
-            In = ParameterLocation.Header,
-            Name = "Authorization",
-            Description = "API Key"
-        });
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "ApiKey"
-                                }
-                            },
-                            new string[] {}
-                        }
-                    });
-    }
-);
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(token.Secret)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+    });
 
 var app = builder.Build();
 
@@ -70,10 +74,12 @@ if (app.Environment.IsDevelopment())
     });
 
 }
+//app.UseSwaggerAuthorized();
+//app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<JwtMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
