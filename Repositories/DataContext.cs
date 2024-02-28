@@ -7,7 +7,7 @@ namespace Marketplace.Repositories
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
@@ -16,7 +16,7 @@ namespace Marketplace.Repositories
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Konfigurasi nama tabel
-            modelBuilder.Entity<Customer>().ToTable("customer");
+            modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Product>().ToTable("product");
             modelBuilder.Entity<Role>().ToTable("roles");
             modelBuilder.Entity<Permission>().ToTable("permissions");

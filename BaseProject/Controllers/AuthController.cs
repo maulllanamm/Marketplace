@@ -23,18 +23,18 @@ namespace Marketplace.Controllers
         [HttpPost]
         public async Task<ActionResult> Login([FromBody] LoginViewModal request)
         {
-            var customer = await _service.Login(request);
-            if (customer == null)
+            var user = await _service.Login(request);
+            if (user == null)
             {
                 return BadRequest("Username or password did not match.");
             }
 
-            var accessToken = await _service.GenerateAccessToken(customer.Username, customer.RoleName);
+            var accessToken = await _service.GenerateAccessToken(user.Username, user.RoleName);
             var response = new AuthViewModel
             {
-                CustomerId = customer.Id,      
-                RoleId = customer.RoleId,
-                Username = customer.Username,
+                UserId = user.Id,      
+                RoleId = user.RoleId,
+                Username = user.Username,
                 Token = accessToken,
                 Password = "==Secret=="
             };
@@ -43,7 +43,7 @@ namespace Marketplace.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult> Register(CustomerViewModel request)
+        public async Task<ActionResult> Register(UserViewModel request)
         {
             var response = await _service.Register(request);
             return Ok(response);

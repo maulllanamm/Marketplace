@@ -8,15 +8,15 @@ using Repositories.Interface;
 
 namespace Marketplace.Requests
 {
-    public class CustomerService : GuidService<CustomerViewModel, Customer>, ICustomerService
+    public class UserService : GuidService<UserViewModel, User>, IUserService
     {
-        private readonly IGuidRepository<Customer> _baseRepo ;
-        private readonly ICustomerRepository _repo ;
+        private readonly IGuidRepository<User> _baseRepo ;
+        private readonly IUserRepository _repo ;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
         private readonly string _papper = "v81IKJ3ZBFgwc2AdnYeOLhUn9muUtIQ0";
         private readonly int _iteration = 3;
-        public CustomerService(IMapper mapper, IPasswordHasher passwordHasher, IGuidRepository<Customer> baseRepo, ICustomerRepository repo) : base(mapper, baseRepo)
+        public UserService(IMapper mapper, IPasswordHasher passwordHasher, IGuidRepository<User> baseRepo, IUserRepository repo) : base(mapper, baseRepo)
         {
             _mapper = mapper;
             _passwordHasher = passwordHasher;
@@ -40,9 +40,9 @@ namespace Marketplace.Requests
             return "Login Success!";
         }
 
-        public async Task<CustomerViewModel> Register(CustomerViewModel request)
+        public async Task<UserViewModel> Register(UserViewModel request)
         {
-            var customer = new Customer
+            var user = new User
             {
                 username = request.Username,
                 email = request.Email,
@@ -54,16 +54,16 @@ namespace Marketplace.Requests
                 modified_by = request.ModifiedBy,
             };
 
-            customer.password_hash = _passwordHasher.ComputeHash(request.Password, customer.password_salt, _papper, _iteration);
-            _baseRepo.Create(customer);
-            var res = _mapper.Map<CustomerViewModel>(customer);
+            user.password_hash = _passwordHasher.ComputeHash(request.Password, user.password_salt, _papper, _iteration);
+            _baseRepo.Create(user);
+            var res = _mapper.Map<UserViewModel>(user);
             res.Password = "==HASH==";
             return res;
         }
-        public async Task<CustomerViewModel> Update(CustomerViewModel request)
+        public async Task<UserViewModel> Update(UserViewModel request)
         {
-            var customer = _mapper.Map<Customer>(request);
-            _baseRepo.Update(customer);
+            var user = _mapper.Map<User>(request);
+            _baseRepo.Update(user);
             return request;
         }
 

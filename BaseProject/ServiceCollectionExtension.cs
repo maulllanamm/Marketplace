@@ -16,8 +16,8 @@ namespace Marketplace
         {
             services.AddScoped(typeof(IGuidRepository<>), typeof(GuidRepository<>));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();

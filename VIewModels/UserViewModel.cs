@@ -2,7 +2,7 @@
 
 namespace Marketplace.Responses
 {
-    public class CustomerViewModel : GuidViewModel
+    public class UserViewModel : GuidViewModel
     {
         public int RoleId { get; set; }
         public string? RoleName { get; set; }

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Marketplace.Enitities;
 using Marketplace.Responses;
-using Marketplace.Services.Base;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -9,18 +8,16 @@ using Microsoft.IdentityModel.Tokens;
 using Repositories.Base;
 using Repositories.Interface;
 using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 using ViewModels.ants;
-using ViewModels.Constants;
 
 namespace Marketplace.Requests
 {
     public class AuthService : IAuthService
     {
-        private readonly IGuidRepository<Customer> _baseRepo;
-        private readonly ICustomerRepository _customerRepo;
+        private readonly IGuidRepository<User> _baseRepo;
+        private readonly IUserRepository _userRepo;
         private readonly IRoleService _role;
         private readonly IPermissionService _permission;
         private readonly IRolePermissionService _rolePermission;
@@ -31,11 +28,11 @@ namespace Marketplace.Requests
         private readonly string _papper = "v81IKJ3ZBFgwc2AdnYeOLhUn9muUtIQ0";
         private readonly int _iteration = 3;
 
-        public AuthService(IGuidRepository<Customer> baseRepo, ICustomerRepository repo,
+        public AuthService(IGuidRepository<User> baseRepo, IUserRepository repo,
             IRoleService role, IPermissionService permission, IHttpContextAccessor httpCont, IPasswordHasher passwordHasher, IMapper mapper, IOptions<JwtModel> jwt, IRolePermissionService rolePermission)
         {
             _baseRepo = baseRepo;
-            _customerRepo = repo;
+            _userRepo = repo;
             _role = role;
             _permission = permission;
             _httpCont = httpCont;
@@ -45,20 +42,20 @@ namespace Marketplace.Requests
             _rolePermission = rolePermission;
         }
 
-        public async Task<CustomerViewModel> Login(LoginViewModal request)
+        public async Task<UserViewModel> Login(LoginViewModal request)
         {
-            var customer = await _customerRepo.GetByUsername(request.Username);
-            if (customer == null)
+            var user = await _userRepo.GetByUsername(request.Username);
+            if (user == null)
             {
                 return null;
             }
 
-            var passwordHash = _passwordHasher.ComputeHash(request.Password, customer.password_salt, _papper, _iteration);
-            if (passwordHash != customer.password_hash)
+            var passwordHash = _passwordHasher.ComputeHash(request.Password, user.password_salt, _papper, _iteration);
+            if (passwordHash != user.password_hash)
             {
                 return null;
             }
-            return _mapper.Map<CustomerViewModel>(customer);
+            return _mapper.Map<UserViewModel>(user);
         }
         public async Task<string> GenerateAccessToken(string username, string roleName)
         {
@@ -83,10 +80,10 @@ namespace Marketplace.Requests
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(tokenDescriptor);
         }
-        public async Task<CustomerViewModel> Register(CustomerViewModel request)
+        public async Task<UserViewModel> Register(UserViewModel request)
         {
             var role = await _role.GetById(request.RoleId);
-            var customer = new Customer
+            var user = new User
             {
                 role_id = role.Id,
                 role_name = role.Name,
@@ -100,9 +97,9 @@ namespace Marketplace.Requests
                 modified_by = request.ModifiedBy,
             };
 
-            customer.password_hash = _passwordHasher.ComputeHash(request.Password, customer.password_salt, _papper, _iteration);
-            _baseRepo.Create(customer);
-            var res = _mapper.Map<CustomerViewModel>(customer);
+            user.password_hash = _passwordHasher.ComputeHash(request.Password, user.password_salt, _papper, _iteration);
+            _baseRepo.Create(user);
+            var res = _mapper.Map<UserViewModel>(user);
             res.Password = "==HASH==";
             return res;
         }

@@ -1,9 +1,7 @@
-using Marketplace.Requests;
 using Marketplace.Responses;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ViewModels.Constants;
 
 namespace Marketplace.Controllers
 {
@@ -45,15 +43,15 @@ namespace Marketplace.Controllers
         [HttpPut]
         public async Task<ActionResult> Put(ProductViewModel product)
         {
-            var customer = await _productService.Update(product);
-            return Ok(customer);
+            var res = await _productService.Update(product);
+            return Ok(res);
         }
 
         [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
-            var customer = await _productService.Delete(id);
-            return Ok(customer);
+            var res = await _productService.Delete(id);
+            return Ok(res);
         }
     }
 }

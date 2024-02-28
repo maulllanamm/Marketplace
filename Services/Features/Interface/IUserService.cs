@@ -4,11 +4,11 @@ using Marketplace.Services.Base;
 
 namespace Marketplace.Services.Interface
 {
-    public interface ICustomerService : IGuidService<CustomerViewModel>
+    public interface IUserService : IGuidService<UserViewModel>
     {
         public Task<string> Login(string username, string password);
-        public Task<CustomerViewModel> Register(CustomerViewModel request);
-        public Task<CustomerViewModel> Update(CustomerViewModel request);
+        public Task<UserViewModel> Register(UserViewModel request);
+        public Task<UserViewModel> Update(UserViewModel request);
         public Task<Guid> Delete(Guid id);
     }
 }

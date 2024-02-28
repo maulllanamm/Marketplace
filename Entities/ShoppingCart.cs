@@ -6,7 +6,7 @@ namespace Marketplace.Enitities
     public class ShoppingCart : Entity
     {
         public int product_id { get; set; }
-        public Guid customer_id { get; set; }
+        public Guid user_id { get; set; }
         public int quantity { get; set; }
         public int total_amount { get; set; }
     }

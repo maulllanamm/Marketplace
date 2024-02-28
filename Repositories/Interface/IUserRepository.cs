@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interface
 {
-    public interface ICustomerRepository : IGuidRepository<Customer>
+    public interface IUserRepository : IGuidRepository<User>
     {
-        public Task<Customer> GetByUsername(string username);
+        public Task<User> GetByUsername(string username);
     }
 }
