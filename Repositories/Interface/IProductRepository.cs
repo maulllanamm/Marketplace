@@ -10,6 +10,7 @@ namespace Repositories.Interface
 {
     public interface IProductRepository : IRepository<Product>
     {
+        Task<ProductResponseEntitiy> GetAll(int page);
         Task<List<Product>> GetProducts(string category);
     }
 }

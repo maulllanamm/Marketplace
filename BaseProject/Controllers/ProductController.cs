@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.Results;
 using Marketplace.Responses;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -10,16 +12,23 @@ namespace Marketplace.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-
-        public ProductController(IProductService productService)
+        private readonly IValidator<int> _validator;
+        public ProductController(IProductService productService, IValidator<int> validator)
         {
             _productService = productService;
+            _validator = validator;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll(int page)
         {
-            var products = await _productService.GetAll();
+            ValidationResult validationResult = _validator.Validate(page);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+            var products = await _productService.GetAll(page);
             return Ok(products);
         }
 

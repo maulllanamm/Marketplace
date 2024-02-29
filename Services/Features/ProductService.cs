@@ -31,6 +31,13 @@ namespace Marketplace.Requests
             _dummyGenerator = dummyGenerator;
         }
 
+        public async Task<ProductResponse> GetAll(int page)
+        {
+            var res = await _repo.GetAll(page);
+            return _mapper.Map<ProductResponse>(res);
+
+        }
+
         public async Task<List<ProductViewModel>> GetProducts(string category)
         {
             var products = await _repo.GetProducts(category);

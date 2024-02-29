@@ -14,6 +14,23 @@ namespace Marketplace.Repositories
         {
             _context = context;
         }
+        public async Task<ProductResponseEntitiy> GetAll(int page)
+        {
+            var pageResult = 5f;
+            var countProduct = await _context.Products.CountAsync() ;
+            var totalPage = Math.Ceiling(countProduct / pageResult);
+
+            var products = await _context.Products
+                                        .Skip((page - 1) * (int)pageResult)
+                                        .Take((int)pageResult)
+                                        .ToListAsync();
+            return new ProductResponseEntitiy
+            {
+                Products = products,
+                CurrentPage = page,
+                TotalPage = (int)totalPage
+            };
+        }
         public async Task<List<Product>> GetProducts(string category)
         {
             return await _context.Products.Where(x => x.category == category).ToListAsync();

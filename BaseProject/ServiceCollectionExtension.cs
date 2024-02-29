@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using FluentValidation;
 using Marketplace.Repositories;
 using Marketplace.Repositories.Base;
 using Marketplace.Requests;
@@ -7,6 +8,7 @@ using Marketplace.Services.Interface;
 using Repositories.Base;
 using Repositories.ConfigUoW;
 using Repositories.Interface;
+using WebAPI.Validator;
 
 namespace Marketplace
 {
@@ -39,6 +41,7 @@ namespace Marketplace
             services.AddSingleton<Faker<ProductViewModel>, Faker<ProductViewModel>>();
             services.AddScoped(typeof(IDummyGenerator<>), typeof(DummyGenerator<>));
 
+            services.AddTransient<IValidator<int>, IntegerPayloadValidator>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<DataContext>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

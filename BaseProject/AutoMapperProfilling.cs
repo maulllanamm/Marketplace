@@ -18,6 +18,9 @@ namespace Marketplace
             CreateMap<ProductViewModel, Product>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
             CreateMap<Product, ProductViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
 
+            CreateMap<ProductResponse, ProductResponseEntitiy>().ReverseMap();
+            CreateMap<ProductResponseEntitiy, ProductResponse>().ReverseMap();
+
             CreateMap<RoleViewModel, Role>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
             CreateMap<Role, RoleViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
 
