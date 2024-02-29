@@ -14,5 +14,8 @@ namespace Marketplace.Enitities
         public string full_name { get; set; }
         public string phone_number { get; set; }
         public string address { get; set; }
+        public string? refresh_token { get; set; } 
+        public DateTimeOffset? token_created { get; set; }
+        public DateTimeOffset? token_expires { get; set; }
     }
 }

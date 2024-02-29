@@ -15,7 +15,7 @@ namespace Marketplace.Repositories.Base
     {
         private readonly DataContext _context;
 
-        public Repository(DataContext context)
+        public Repository(DataContext context) 
         {
             _context = context;
         }

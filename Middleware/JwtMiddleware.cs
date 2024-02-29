@@ -44,43 +44,7 @@ namespace Marketplace.Requests
             }
         }
 
-        private ClaimsPrincipal ValidateAccessToken(string accessToken)
-        {
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));
-
-                tokenHandler.ValidateToken(accessToken, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = key,
-                    ValidIssuer = _jwt.Issuer,
-                    ValidAudience = _jwt.Audience,
-                    ClockSkew = TimeSpan.Zero
-                }, out var validatedToken);
-
-
-                var jsonToken = validatedToken as JwtSecurityToken;
-
-                if (jsonToken != null)
-                {
-                    var claimsIdentity = new ClaimsIdentity(jsonToken.Claims, "jwt");
-
-                    // Set the claims to context.User
-                    return new ClaimsPrincipal(claimsIdentity);
-                }
-
-                return new ClaimsPrincipal();
-            }
-            catch
-            {
-                return null;
-            }
-        }
+        
     }
 
     public static class SwaggerAuthorizeExtensions

@@ -9,6 +9,7 @@ using Repositories.Base;
 using Repositories.Interface;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using ViewModels.ants;
 
@@ -29,7 +30,8 @@ namespace Marketplace.Requests
         private readonly int _iteration = 3;
 
         public AuthService(IGuidRepository<User> baseRepo, IUserRepository repo,
-            IRoleService role, IPermissionService permission, IHttpContextAccessor httpCont, IPasswordHasher passwordHasher, IMapper mapper, IOptions<JwtModel> jwt, IRolePermissionService rolePermission)
+            IRoleService role, IPermissionService permission, IHttpContextAccessor httpCont, IPasswordHasher passwordHasher, IMapper mapper, IOptions<JwtModel> jwt,
+            IRolePermissionService rolePermission)
         {
             _baseRepo = baseRepo;
             _userRepo = repo;
@@ -76,6 +78,44 @@ namespace Marketplace.Requests
             }
             return _mapper.Map<UserViewModel>(user);
         }
+        public async Task<string> GenerateRefreshToken(string username)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));
+            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, username),
+            };
+
+            var tokenDescriptor = new JwtSecurityToken
+                (
+                    _jwt.Issuer,
+                    _jwt.Audience,
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddMinutes(_jwt.ExpiryRefreshMinutes),
+                    signingCredentials: credential
+                );
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(tokenDescriptor);
+        }
+
+        public void SetRefreshToken(string newRefreshToken, UserViewModel user)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddMinutes(_jwt.ExpiryRefreshMinutes)
+            };
+            _httpCont.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
+
+            user.RefreshToken = newRefreshToken;
+            user.TokenCreated = DateTime.UtcNow;
+            user.TokenExpires = DateTime.UtcNow.AddMinutes(_jwt.ExpiryRefreshMinutes);
+
+            _baseRepo.Update(_mapper.Map<User>(user));
+        }
+
         public async Task<string> GenerateAccessToken(string username, string roleName)
         {
 
@@ -92,14 +132,14 @@ namespace Marketplace.Requests
                     _jwt.Issuer,
                     _jwt.Audience,
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(_jwt.ExpiryMinutes),
+                    expires: DateTime.UtcNow.AddMinutes(_jwt.ExpiryAccessMinutes),
                     signingCredentials: credential
                 );
 
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(tokenDescriptor);
         }
-        public async Task<UserViewModel> Register(UserViewModel request)
+        public async Task<UserViewModel> Register(RegisterViewModal request)
         {
             var role = await _role.GetById(request.RoleId);
             var user = new User
@@ -111,9 +151,7 @@ namespace Marketplace.Requests
                 password_salt = _passwordHasher.GenerateSalt(),
                 full_name = request.FullName,
                 phone_number = request.PhoneNumber,
-                address = request.Address,
-                created_by = request.CreatedBy,
-                modified_by = request.ModifiedBy,
+                address = request.Address
             };
 
             user.password_hash = _passwordHasher.ComputeHash(request.Password, user.password_salt, _papper, _iteration);
@@ -153,6 +191,40 @@ namespace Marketplace.Requests
             }
             return true;
 
+        }
+
+        public ClaimsPrincipal ValidateAccessToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));
+
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = key,
+                    ValidIssuer = _jwt.Issuer,
+                    ValidAudience = _jwt.Audience,
+                    ClockSkew = TimeSpan.Zero
+                }, out var validatedToken);
+
+
+                var jsonToken = validatedToken as JwtSecurityToken;
+
+                var isValidToken = jsonToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase);
+                if (jsonToken == null || !isValidToken)
+                    throw new SecurityTokenException("Invalid token");
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

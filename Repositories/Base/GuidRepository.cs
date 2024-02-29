@@ -32,6 +32,7 @@ namespace Marketplace.Repositories.Base
 
         public async Task<GuidEntity> Create(GuidEntity entity)
         {
+            entity.id = new Guid();
             entity.created_date ??= DateTime.UtcNow;
             entity.created_by ??= "system";
             entity.modified_date ??= DateTime.UtcNow;

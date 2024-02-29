@@ -24,6 +24,12 @@ namespace Marketplace.Requests
             _repo = repo;
         }
 
+        public async Task<UserViewModel> GetByUsername(string username)
+        {
+            var entity = await _repo.GetByUsername(username);
+            return _mapper.Map<UserViewModel>(entity);
+        }
+
         public async Task<string> Login(string username, string password)
         {
             var user = await _repo.GetByUsername(username);
@@ -39,6 +45,7 @@ namespace Marketplace.Requests
             }
             return "Login Success!";
         }
+
 
         public async Task<UserViewModel> Register(UserViewModel request)
         {
