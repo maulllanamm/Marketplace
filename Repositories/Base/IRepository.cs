@@ -1,4 +1,6 @@
-﻿namespace Repositories.Base
+﻿using Marketplace.Enitities.Base;
+
+namespace Repositories.Base
 {
     public interface IRepository<Entity> where Entity : class
     {
@@ -11,11 +13,13 @@
         Task<Entity> Update(Entity entity);
         Task<int> UpdateBulk(List<Entity> entites);
         Task<List<Entity>> GetAll() ;
+        Task<List<Entity>> GetAll(int page);
         Task<Entity> GetById(int id);
         IEnumerable<Entity> Filter();
         IEnumerable<Entity> Filter(Func<Entity, bool> predicate);
 
         //separate method SaveChanges can be helpful when using this pattern with UnitOfWork
         void SaveChanges();
+        Task<int> Count();
     }
 }

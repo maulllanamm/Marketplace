@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Marketplace.Responses;
+using Marketplace.Responses.Base;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,18 @@ namespace Marketplace.Controllers
             {
                 return BadRequest(validationResult.Errors);
             }
-            var products = await _productService.GetAll(page);
+
+            var pageResult = 5f;
+            var countProduct = await _productService.Count();
+            var totalPage = Math.Ceiling(countProduct / pageResult);
+            var pages = await _productService.GetAll(page);
+
+            var products = new ProductPagination
+            {
+                Products = pages,
+                CurrentPage = page,
+                TotalPage = (int)totalPage
+            };
             return Ok(products);
         }
 

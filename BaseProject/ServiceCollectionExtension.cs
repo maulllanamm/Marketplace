@@ -1,9 +1,11 @@
 ﻿using Bogus;
 using FluentValidation;
+using Marketplace.Enitities.Base;
 using Marketplace.Repositories;
 using Marketplace.Repositories.Base;
 using Marketplace.Requests;
 using Marketplace.Responses;
+using Marketplace.Responses.Base;
 using Marketplace.Services.Interface;
 using Repositories.Base;
 using Repositories.ConfigUoW;

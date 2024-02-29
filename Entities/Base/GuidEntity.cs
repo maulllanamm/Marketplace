@@ -11,4 +11,5 @@ namespace Marketplace.Enitities.Base
         public DateTimeOffset? modified_date { get; set; }
         public string modified_by { get; set; }
     }
+
 }

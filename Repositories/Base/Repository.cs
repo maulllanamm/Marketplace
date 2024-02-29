@@ -19,10 +19,30 @@ namespace Marketplace.Repositories.Base
         {
             _context = context;
         }
+        public async Task<int> Count()
+        {
+            return await _context.Set<Entity>().CountAsync();
+        }
+        public async Task<List<Entity>> GetAll(int page)
+        {
+            var pageResult = 5f;
+            var countProduct = await Count();
+            var totalPage = Math.Ceiling(countProduct / pageResult);
+
+            var items = await _context.Set<Entity>()
+                                      .Skip((page - 1) * (int)pageResult)
+                                      .Take((int)pageResult)
+                                      .ToListAsync();
+
+            return items;
+        }
+
         public async Task<List<Entity>> GetAll()
         {
             return _context.Set<Entity>().AsNoTracking().ToList();
         }
+
+
 
         public async Task<Entity> GetById(int id)
         {

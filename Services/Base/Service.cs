@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Marketplace.Responses.Base;
 using Repositories.Base;
 using System.Diagnostics;
 
@@ -15,6 +16,17 @@ namespace Marketplace.Services.Base
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _repository = repository;
+        }
+
+        public async Task<int> Count()
+        {
+            return await _repository.Count();
+        }
+
+        public async Task<List<ViewModel>> GetAll(int page)
+        {
+            var entities = await _repository.GetAll(page);
+            return _mapper.Map<List<ViewModel>>(entities);
         }
         public async Task<List<ViewModel>> GetAll()
         {

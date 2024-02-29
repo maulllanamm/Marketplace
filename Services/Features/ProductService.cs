@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bogus;
 using Marketplace.Enitities;
+using Marketplace.Enitities.Base;
 using Marketplace.Responses;
 using Marketplace.Services.Base;
 using Marketplace.Services.Interface;
@@ -29,13 +30,6 @@ namespace Marketplace.Requests
             _repo = repo;
             _mapper = mapper;
             _dummyGenerator = dummyGenerator;
-        }
-
-        public async Task<ProductResponse> GetAll(int page)
-        {
-            var res = await _repo.GetAll(page);
-            return _mapper.Map<ProductResponse>(res);
-
         }
 
         public async Task<List<ProductViewModel>> GetProducts(string category)

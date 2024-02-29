@@ -1,6 +1,6 @@
 ﻿namespace Marketplace.Responses.Base
 {
-    public class ViewModel 
+    public interface IViewModel
     {
         public int Id { get; set; }
         public bool? IsDeleted { get; set; }

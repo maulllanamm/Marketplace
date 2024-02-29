@@ -11,7 +11,7 @@ namespace Marketplace.Responses
         public int StockQuantity { get; set; }
     }
 
-    public class ProductResponse
+    public class ProductPagination
     {
         public List<ProductViewModel> Products { get; set; }
         public int CurrentPage { get; set; }

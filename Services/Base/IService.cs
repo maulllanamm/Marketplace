@@ -7,6 +7,7 @@ namespace Marketplace.Services.Base
         where ViewModel : Responses.Base.ViewModel, new()
     {
         public Task<List<ViewModel>> GetAll();
+        public Task<List<ViewModel>> GetAll(int page);
         public Task<ViewModel> GetById(int id);
         public Task<ViewModel> Create(ViewModel viewModel);
         public Task<string> CreateBulk(List<ViewModel> viewModels);
@@ -16,5 +17,6 @@ namespace Marketplace.Services.Base
         public Task<string> DeleteBulk(List<ViewModel> viewModels);
         public Task<int> SoftDelete(int id);
         public Task<string> SoftDeleteBulk(List<ViewModel> viewModels);
+        public Task<int> Count();
     }
 }
