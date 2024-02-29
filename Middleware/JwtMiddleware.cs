@@ -27,12 +27,6 @@ namespace Marketplace.Requests
 
         public async Task<bool> InvokeAsync(HttpContext context)
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            if (token != null)
-            {
-                var claims = ValidateAccessToken(token);
-                context.User = claims;
-            }
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();

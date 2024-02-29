@@ -4,6 +4,7 @@ using Marketplace.Responses;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Marketplace.Controllers
 {
@@ -19,6 +20,14 @@ namespace Marketplace.Controllers
             _service = service;
         }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult> GetMe()
+        {
+            var user = await _service.GetMe();
+            return Ok(user);
+        }
+        
         [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult> Login([FromBody] LoginViewModal request)
@@ -30,15 +39,7 @@ namespace Marketplace.Controllers
             }
 
             var accessToken = await _service.GenerateAccessToken(user.Username, user.RoleName);
-            var response = new AuthViewModel
-            {
-                UserId = user.Id,      
-                RoleId = user.RoleId,
-                Username = user.Username,
-                Token = accessToken,
-                Password = "==Secret=="
-            };
-            return Ok(response);
+            return Ok(accessToken);
         }
 
         [AllowAnonymous]

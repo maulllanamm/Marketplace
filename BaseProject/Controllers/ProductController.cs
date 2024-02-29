@@ -16,7 +16,6 @@ namespace Marketplace.Controllers
             _productService = productService;
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
@@ -25,13 +24,13 @@ namespace Marketplace.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult> GetProducts(string category)
         {
             var products = await _productService.GetProducts(category);
             return Ok(products);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> GenerateDummy(int amount)
         {

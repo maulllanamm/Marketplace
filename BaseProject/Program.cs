@@ -15,7 +15,7 @@ builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connecti
 builder.Services.AddCustomService();
 builder.Services.AddAutoMapper(typeof(AutoMapConfig));
 
-// ngambil token management dari appseting.json
+// ngambil token management dari appseting.json (option pattern)
 builder.Services.Configure<JwtModel>(builder.Configuration.GetSection("TokenManagement"));
 var token = builder.Configuration.GetSection("TokenManagement").Get<JwtModel>();
 
@@ -23,6 +23,7 @@ var token = builder.Configuration.GetSection("TokenManagement").Get<JwtModel>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -44,8 +45,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(token.Secret)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidateAudience = true,
             ValidIssuer = token.Issuer,
             ValidAudience = token.Audience,
         };
@@ -77,13 +78,14 @@ if (app.Environment.IsDevelopment())
     });
 
 }
-app.UseSwaggerAuthorized();
-app.UseMiddleware<JwtMiddleware>();
-
 app.UseHttpsRedirection();
+
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSwaggerAuthorized(); // Custom middleware for Swagger authorization
+//app.UseMiddleware<JwtMiddleware>(); //  custom JWT middleware
 
 app.MapControllers();
 

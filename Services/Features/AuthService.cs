@@ -42,6 +42,25 @@ namespace Marketplace.Requests
             _rolePermission = rolePermission;
         }
 
+        public Task<GetMeViewModal> GetMe()
+        {
+            if (_httpCont.HttpContext != null)
+            {
+                var username = _httpCont.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+                var role = _httpCont.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+                var result = new GetMeViewModal
+                {
+                    Username = username,
+                    Role = role,
+                };
+
+                return Task.FromResult<GetMeViewModal>(result);
+            }
+
+            return Task.FromResult<GetMeViewModal>(null);
+        }
+
+
         public async Task<UserViewModel> Login(LoginViewModal request)
         {
             var user = await _userRepo.GetByUsername(request.Username);
@@ -103,15 +122,15 @@ namespace Marketplace.Requests
             res.Password = "==HASH==";
             return res;
         }
+
         public async Task<bool> IsRequestPermitted()
         {
-            var user = _httpCont?.HttpContext?.User;
-            var username = user?.FindFirst(ClaimTypes.Name)?.Value;
-            var role = user?.FindFirst(ClaimTypes.Role)?.Value;
+            var getMe = await GetMe();
+            var username = getMe.Username;
+            var role = getMe.Role;
             var path = _httpCont.HttpContext.Request.Path.Value;
             var method = _httpCont.HttpContext.Request.Method.ToString();
 
-            var splitPath = path.Split('/');
             if (role == "Administrator")
             {
                 return true;
