@@ -7,6 +7,7 @@ using Marketplace.Services.Interface;
 using Repositories.Base;
 using Repositories.Interface;
 using System.Diagnostics;
+using Z.BulkOperations;
 
 namespace Marketplace.Requests
 {
@@ -28,11 +29,22 @@ namespace Marketplace.Requests
             _users = users;
         }
 
+        public async Task<List<ShoppingCartViewModel>> GetListShoppingCart()
+        {
+            var userLogin = await _auth.GetMe();
+            var allShoppingCart = await _baseRepo.GetAll();
+            var myShoppingCart = allShoppingCart.Where(x => x.created_by == userLogin.Username);
+            return _mapper.Map<List<ShoppingCartViewModel>>(myShoppingCart);
+        }
         public async Task<ShoppingCartViewModel> AddProduct(ItemCartViewModel item)
         {
             var userLogin = await _auth.GetMe();
             var user = await _users.GetByUsername(userLogin.Username);
             var product = await _product.GetById(item.ProductId);
+            if(product.StockQuantity < item.Quantity)
+            {
+                throw new Exception("Stok produk tidak mencukupi untuk jumlah yang diminta.");
+            }
             var shoppingCart = new ShoppingCart
             {
                 product_id = item.ProductId,
@@ -48,6 +60,19 @@ namespace Marketplace.Requests
             await _product.Update(product);
             return _mapper.Map<ShoppingCartViewModel>(shoppingCart);
         }
-
+        public override async Task<int> Delete(int id)
+        {
+            var userLogin = await _auth.GetMe();
+            var allShoppingCart = await _baseRepo.GetAll();
+            var myShoppingCart = allShoppingCart.FirstOrDefault(x => x.created_by == userLogin.Username && x.id == id);
+            if(myShoppingCart != null)
+            {
+                await _baseRepo.Delete(id);
+                var product = await _product.GetById(myShoppingCart.product_id);
+                product.StockQuantity += myShoppingCart.quantity;
+                await _product.Update(product);
+            }
+            return id;
+        }
     }
 }

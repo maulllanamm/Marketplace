@@ -18,6 +18,14 @@ namespace Marketplace.Controllers
         }
 
         [Authorize]
+        [HttpGet]
+        public async Task<ActionResult> GetListShoppingCart()
+        {
+            var products = await _shoppingCartService.GetListShoppingCart();
+            return Ok(products);
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> AddProduct(ItemCartViewModel item)
         {
@@ -25,6 +33,12 @@ namespace Marketplace.Controllers
             return Ok(products);
         }
 
-
+        [Authorize]
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var products = await _shoppingCartService.Delete(id);
+            return Ok(products);
+        }
     }
 }

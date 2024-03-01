@@ -18,33 +18,33 @@ namespace Marketplace.Services.Base
             _repository = repository;
         }
 
-        public async Task<int> Count()
+        public virtual async Task<int> Count()
         {
             return await _repository.Count();
         }
 
-        public async Task<List<ViewModel>> GetAll(int page)
+        public virtual async Task<List<ViewModel>> GetAll(int page)
         {
             var entities = await _repository.GetAll(page);
             return _mapper.Map<List<ViewModel>>(entities);
         }
-        public async Task<List<ViewModel>> GetAll()
+        public virtual async Task<List<ViewModel>> GetAll()
         {
             var entities = await _repository.GetAll();
             return _mapper.Map<List<ViewModel>>(entities);
         }
-        public async Task<ViewModel> GetById(int id)
+        public virtual async Task<ViewModel> GetById(int id)
         {
             var entity = await _repository.GetById(id);
             return _mapper.Map<ViewModel>(entity);
         }
-        public async Task<ViewModel> Create(ViewModel viewModel)
+        public virtual async Task<ViewModel> Create(ViewModel viewModel)
         {
             var entity = _mapper.Map<Entity>(viewModel);
             var res = await _repository.Create(entity);
             return _mapper.Map<ViewModel>(res);
         }
-        public async Task<string> CreateBulk(List<ViewModel> viewModels)
+        public virtual async Task<string> CreateBulk(List<ViewModel> viewModels)
         {
             var entities = _mapper.Map<List<Entity>>(viewModels);
             var stopwatch = new Stopwatch();
@@ -54,14 +54,14 @@ namespace Marketplace.Services.Base
             return $"Success create: {res} data , Elapsed time: {stopwatch.Elapsed}";
         }
 
-        public async Task<ViewModel> Update(ViewModel viewModel)
+        public virtual async Task<ViewModel> Update(ViewModel viewModel)
         {
             var entity = _mapper.Map<Entity>(viewModel);
             var res = await _repository.Update(entity);
             return _mapper.Map<ViewModel>(res);
         }
 
-        public async Task<string> UpdateBulk(List<ViewModel> viewModels)
+        public virtual async Task<string> UpdateBulk(List<ViewModel> viewModels)
         {
             var entities = _mapper.Map<List<Entity>>(viewModels);
             var stopwatch = new Stopwatch();
@@ -70,11 +70,11 @@ namespace Marketplace.Services.Base
             stopwatch.Stop();
             return $"Success update: {res} data , Elapsed time: {stopwatch.Elapsed}";
         }
-        public async Task<int> Delete(int id)
+        public virtual async Task<int> Delete(int id)
         {
             return await _repository.Delete(id);
         }
-        public async Task<string> DeleteBulk(List<ViewModel> viewModels)
+        public virtual async Task<string> DeleteBulk(List<ViewModel> viewModels)
         {
             var entities = _mapper.Map<List<Entity>>(viewModels);
             var stopwatch = new Stopwatch();
@@ -84,11 +84,11 @@ namespace Marketplace.Services.Base
             return $"Success delete: {res} data , Elapsed time: {stopwatch.Elapsed}";
         }
 
-        public async Task<int> SoftDelete(int id)
+        public virtual async Task<int> SoftDelete(int id)
         {
             return await _repository.SoftDelete(id);
         }
-        public async Task<string> SoftDeleteBulk(List<ViewModel> viewModels)
+        public virtual async Task<string> SoftDeleteBulk(List<ViewModel> viewModels)
         {
             var entities = _mapper.Map<List<Entity>>(viewModels);
             var stopwatch = new Stopwatch();
