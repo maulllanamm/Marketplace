@@ -8,6 +8,6 @@ namespace Marketplace.Enitities
         public int product_id { get; set; }
         public Guid user_id { get; set; }
         public int quantity { get; set; }
-        public int total_amount { get; set; }
+        public long total_amount { get; set; }
     }
 }

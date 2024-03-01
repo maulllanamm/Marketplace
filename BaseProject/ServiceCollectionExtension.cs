@@ -45,7 +45,7 @@ namespace Marketplace
 
             services.AddTransient<IValidator<int>, IntegerPayloadValidator>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
-            services.AddScoped<DataContext>();
+            services.AddTransient<DataContext>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddHttpContextAccessor();
         }

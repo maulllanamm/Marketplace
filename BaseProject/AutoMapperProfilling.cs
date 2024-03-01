@@ -26,6 +26,8 @@ namespace Marketplace
             CreateMap<PermissionViewModel, Permission>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
             CreateMap<Permission, PermissionViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
 
+            CreateMap<ShoppingCartViewModel, ShoppingCart>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
+            CreateMap<ShoppingCart, ShoppingCartViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
         }
     }
 }

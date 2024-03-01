@@ -12,6 +12,7 @@ namespace Marketplace.Repositories
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +22,7 @@ namespace Marketplace.Repositories
             modelBuilder.Entity<Role>().ToTable("roles");
             modelBuilder.Entity<Permission>().ToTable("permissions");
             modelBuilder.Entity<RolePermission>().ToTable("role_permissions").HasKey(x => new { x.role_id, x.permission_id });
+            modelBuilder.Entity<ShoppingCart>().ToTable("shopping_cart");
 
             base.OnModelCreating(modelBuilder);
 

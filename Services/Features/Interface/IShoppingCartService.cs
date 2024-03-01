@@ -7,5 +7,6 @@ namespace Marketplace.Services.Interface
 {
     public interface IShoppingCartService : IService<ShoppingCartViewModel>
     {
+        public Task<ShoppingCartViewModel> AddProduct(ItemCartViewModel item);
     }
 }

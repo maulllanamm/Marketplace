@@ -1,6 +1,7 @@
 using Marketplace.Requests;
 using Marketplace.Responses;
 using Marketplace.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marketplace.Controllers
@@ -16,13 +17,14 @@ namespace Marketplace.Controllers
             _shoppingCartService = shoppingCartService;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult> AddProduct(ShoppingCartViewModel )
-        //{
-        //    var products = await _shoppingCartService.AddProduct();
-        //    return Ok(products);
-        //}
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult> AddProduct(ItemCartViewModel item)
+        {
+            var products = await _shoppingCartService.AddProduct(item);
+            return Ok(products);
+        }
 
-        
+
     }
 }
