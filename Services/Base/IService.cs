@@ -9,6 +9,8 @@ namespace Marketplace.Services.Base
         public Task<List<ViewModel>> GetAll();
         public Task<List<ViewModel>> GetAll(int page);
         public Task<ViewModel> GetById(int id);
+        public Task<List<ViewModel>> GetByListId(List<int> listId);
+        public Task<List<ViewModel>> GetByListProperty(string field, string[] values);
         public Task<ViewModel> Create(ViewModel viewModel);
         public Task<string> CreateBulk(List<ViewModel> viewModels);
         public Task<ViewModel> Update(ViewModel viewModel);

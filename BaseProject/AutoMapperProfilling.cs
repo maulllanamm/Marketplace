@@ -28,6 +28,12 @@ namespace Marketplace
 
             CreateMap<ShoppingCartViewModel, ShoppingCart>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
             CreateMap<ShoppingCart, ShoppingCartViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
+
+            CreateMap<OrderItemViewModel, OrderItem>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
+            CreateMap<OrderItem, OrderItemViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
+
+            CreateMap<OrderViewModel, Order>().EqualityComparison((odto, o) => odto.Id == o.id).ReverseMap();
+            CreateMap<Order, OrderViewModel>().EqualityComparison((odto, o) => odto.id == o.Id).ReverseMap();
         }
     }
 }

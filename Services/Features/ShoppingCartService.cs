@@ -50,14 +50,11 @@ namespace Marketplace.Requests
                 product_id = item.ProductId,
                 user_id = user.Id,
                 quantity = item.Quantity,
-                total_amount = item.Quantity * product.Price,
+                total_price = item.Quantity * product.Price,
                 created_by = userLogin.Username
             };
             await _baseRepo.Create(shoppingCart);
 
-            product.StockQuantity -= item.Quantity;
-
-            await _product.Update(product);
             return _mapper.Map<ShoppingCartViewModel>(shoppingCart);
         }
         public override async Task<int> Delete(int id)
@@ -68,9 +65,6 @@ namespace Marketplace.Requests
             if(myShoppingCart != null)
             {
                 await _baseRepo.Delete(id);
-                var product = await _product.GetById(myShoppingCart.product_id);
-                product.StockQuantity += myShoppingCart.quantity;
-                await _product.Update(product);
             }
             return id;
         }

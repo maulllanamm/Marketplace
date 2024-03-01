@@ -8,7 +8,7 @@ namespace Marketplace.Responses
         public int ProductId { get; set; }
         public Guid UserId { get; set; }
         public int Quantity { get; set; }
-        public int TotalAmount { get; set; }
+        public int TotalPrice { get; set; }
     }
 
     public class ItemCartViewModel

@@ -3,11 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Marketplace.Enitities
 {
-    public class ShoppingCart : Entity
+    public class OrderItem : Entity
     {
+        public int order_id { get; set; }
         public int product_id { get; set; }
-        public Guid user_id { get; set; }
         public int quantity { get; set; }
-        public long total_price { get; set; }
+        public int unit_price { get; set; }
+        public int total_price { get; set; }
     }
 }

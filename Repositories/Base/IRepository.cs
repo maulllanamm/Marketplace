@@ -14,6 +14,8 @@ namespace Repositories.Base
         Task<int> UpdateBulk(List<Entity> entites);
         Task<List<Entity>> GetAll() ;
         Task<List<Entity>> GetAll(int page);
+        Task<List<Entity>> GetByListId(List<int> listId);
+        Task<List<Entity>> GetByListProperty(string field, string[] values);
         Task<Entity> GetById(int id);
         IEnumerable<Entity> Filter();
         IEnumerable<Entity> Filter(Func<Entity, bool> predicate);

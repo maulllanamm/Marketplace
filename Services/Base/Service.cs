@@ -22,6 +22,17 @@ namespace Marketplace.Services.Base
         {
             return await _repository.Count();
         }
+        public virtual async Task<List<ViewModel>> GetByListId(List<int> listId)
+        {
+            var entities = await _repository.GetByListId(listId);
+            return _mapper.Map<List<ViewModel>>(entities);
+        }
+
+        public virtual async Task<List<ViewModel>> GetByListProperty(string field, string[] values)
+        {
+            var entities = await _repository.GetByListProperty(field, values);
+            return _mapper.Map<List<ViewModel>>(entities);
+        }
 
         public virtual async Task<List<ViewModel>> GetAll(int page)
         {

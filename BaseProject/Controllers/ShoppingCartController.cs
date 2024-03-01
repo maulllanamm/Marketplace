@@ -28,7 +28,7 @@ namespace Marketplace.Controllers
         [Authorize]
         [HttpPost]
         public async Task<ActionResult> AddProduct(ItemCartViewModel item)
-        {
+        {       
             var products = await _shoppingCartService.AddProduct(item);
             return Ok(products);
         }
