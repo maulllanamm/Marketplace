@@ -185,7 +185,8 @@ namespace Marketplace.Requests
             var myRolePermissions = rolePermissions.Where(x => x.role_id == myRole.Id).Select(x => x.permission_id).ToList();
             var myPermissions = permissions.Where(x => myRolePermissions.Contains(x.Id));
 
-            if (myPermissions.FirstOrDefault(x => x.HttpMethod == method && x.Path == path) == null)
+            var checkPermission = myPermissions.FirstOrDefault(x => x.HttpMethod == method && x.Path == path);
+            if (checkPermission == null)
             {
                 return false;
             }

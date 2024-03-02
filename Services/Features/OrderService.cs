@@ -68,7 +68,7 @@ namespace Marketplace.Requests
                     ModifiedDate = DateTime.UtcNow,
                 });
 
-                var product = productUpdated.FirstOrDefault(x => x.Id == orderItem.ProductId);
+                var product = products.FirstOrDefault(x => x.Id == orderItem.ProductId);
                 product.StockQuantity -= orderItem.Quantity;
                 productUpdated.Add(product);
             }
