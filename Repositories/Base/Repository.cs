@@ -48,59 +48,24 @@ namespace Marketplace.Repositories.Base
 
 
 
-        public Task<List<Entity>> GetByListId(List<int> listId)
+        public async Task<List<Entity>> GetByListId(List<int> listId)
         {
-            return _context.Set<Entity>().Where(e => listId.Contains(e.id)).ToListAsync();
+            return _context.Set<Entity>().Where(e => listId.Contains(e.id)).ToList();
         }
 
-        public Task<List<Entity>> GetByListProperty(string field, string[] values)
+        public async Task<List<Entity>> GetByListProperty(string field, string[] values)
         {
             // Membuat parameter ekspresi
-            var parameter = Expression.Parameter(typeof(Entity), "e");
+            // Pastikan 'Entity' adalah nama model entitas yang sesuai
+            IQueryable<Entity> query = _context.Set<Entity>();
 
-            // Membuat ekspresi properti yang akan diakses
-            var property = Expression.Property(parameter, field);
+            // Filter berdasarkan properti 'field' dan nilai-nilai 'values'
+            query = query.Where(e => values.Contains(EF.Property<string>(e, field)));
 
-            // Menentukan tipe data untuk Contains
-            var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-            var isFieldString = property.Type == typeof(string);
+            // Eksekusi query dan ambil hasilnya
+            List<Entity> result = await query.ToListAsync();
 
-            // Jika tipe data adalah string, maka gunakan Contains pada string
-            var containsExpression = isFieldString
-                ? Expression.Call(property, containsMethod, Expression.Constant(string.Join(",", values)))
-                : GetContainsExpressionForInt(property, values);
-
-            // Membuat ekspresi lambda
-            var lambda = Expression.Lambda<Func<Entity, bool>>(containsExpression, parameter);
-
-            // Menggunakan ekspresi lambda dalam kueri
-            return _context.Set<Entity>().Where(lambda).ToListAsync();
-        }
-
-        private Expression GetContainsExpressionForInt(MemberExpression property, string[] values)
-        {
-            // Mengubah nilai-nilai string ke dalam tipe data yang sesuai
-            var convertedValues = values.Select(value => Convert.ToInt32(value)).ToArray();
-
-            // Membuat ekspresi untuk properti sebagai IEnumerable<int>
-            var propertyAsEnumerable = Expression.Call(typeof(Enumerable), "AsEnumerable", new[] { property.Type }, property);
-
-            // Membuat ekspresi untuk metode Contains pada IEnumerable<int>
-            var containsMethod = typeof(Enumerable).GetMethod("Contains", new[] { typeof(int) });
-
-            // Membuat ekspresi untuk metode Contains pada IEnumerable<int> dengan nilai pertama
-            var containsExpression = Expression.Call(containsMethod, propertyAsEnumerable, Expression.Constant(convertedValues[0]));
-
-            // Iterasi melalui nilai yang diubah untuk membuat rangkaian ekspresi OR
-            for (int i = 1; i < convertedValues.Length; i++)
-            {
-                var nextContainsExpression = Expression.Call(containsMethod, propertyAsEnumerable, Expression.Constant(convertedValues[i]));
-
-                // Menggunakan ekspresi OR
-                containsExpression = Expression.OrElse(containsExpression, nextContainsExpression);
-            }
-
-            return containsExpression;
+            return result;
         }
 
 

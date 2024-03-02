@@ -34,8 +34,8 @@ namespace Marketplace.Requests
             var listShoppingCart = await _shoppingCartService.GetByListId(shoppingCartsId);
             var getMe = await _authService.GetMe();
             var user = await _userService.GetByUsername(getMe.Username);
-            var listProductId = listShoppingCart.Select(x => x.ProductId.ToString()).ToArray();
-            var products = await _productService.GetByListProperty("id", listProductId);
+            var listProductId = listShoppingCart.Select(x => x.ProductId).ToList();
+            var products = await _productService.GetByListId(listProductId);
             var order = new OrderViewModel
             {
                 UserId = user.Id,
