@@ -37,13 +37,13 @@ namespace Marketplace.Controllers
             var refreshToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return Unauthorized("Invalid token.");
+                return BadRequest("Invalid token.");
             }
 
             var principal = _service.ValidateAccessToken(refreshToken);
             if (principal == null)
             {
-                return Unauthorized("Invalid token.");
+                return NotFound("Invalid token.");
             }
 
             // Mendapatkan informasi user dari token
@@ -51,7 +51,7 @@ namespace Marketplace.Controllers
             var user = await _userService.GetByUsername(username);
             if (!user.RefreshToken.Equals(refreshToken))
             {
-                return Unauthorized("Invalid Refresh Token.");
+                return BadRequest("Invalid Refresh Token.");
             }
             else if(user.TokenExpires < DateTime.Now)
             {
