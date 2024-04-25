@@ -1,4 +1,5 @@
 using Marketplace.Controllers;
+using Marketplace.Enitities;
 using Marketplace.Responses;
 using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Http;
@@ -81,13 +82,6 @@ namespace WebAPIUnitTest
         {
             // Arrange
             var refreshToken = "validRefreshToken";
-            var user = new UserViewModel
-            {
-                Username = "testUser",
-                RoleName = "user",
-                RefreshToken = "validRefreshToken",
-                TokenExpires = DateTime.Now.AddDays(1)
-            };
             _httpContextAccessorMock.Setup(x => x.HttpContext.Request.Cookies["refreshToken"]).Returns(refreshToken);
             _authServiceMock.Setup(m => m.ValidateAccessToken(refreshToken)).Returns((ClaimsPrincipal)null);
 
@@ -98,6 +92,31 @@ namespace WebAPIUnitTest
             Assert.IsType<NotFoundObjectResult>(result);
             var notFound = result as NotFoundObjectResult;
             Assert.Equal("Invalid token.", notFound.Value);
+        }
+
+        [Fact]
+        public async Task RefreshToken_TokenNotEquals_BadRequest()
+        {
+            // Arrange
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+             {
+                new Claim(ClaimTypes.Name, "testUser") // Menambahkan klaim langsung
+             }));
+
+            var user = new UserViewModel { Username = "testUser", RefreshToken = "valid-token" }; // Asumsikan user ini tidak memiliki refreshToken yang sama dengan yang diberikan
+
+            _userServiceMock.Setup(u => u.GetByUsername(It.IsAny<string>())).ReturnsAsync(user);
+
+            var refreshToken = "refreshToken"; // Misalnya refreshToken ini tidak sama dengan refreshToken dari user yang diberikan
+            _httpContextAccessorMock.Setup(x => x.HttpContext.Request.Cookies["refreshToken"]).Returns(refreshToken);
+            _authServiceMock.Setup(s => s.ValidateAccessToken(refreshToken)).Returns(principal);
+
+            // Act
+            var result = await _controller.RefreshToken();
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Invalid Refresh Token.", badRequestResult.Value);
         }
 
         [Fact]
