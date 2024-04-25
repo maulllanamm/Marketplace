@@ -120,6 +120,36 @@ namespace WebAPIUnitTest
         }
 
         [Fact]
+        public async Task RefreshToken_ExpiredToken_Unauthorized()
+        {
+            var refreshToken = "refreshToken"; // Misalnya refreshToken ini tidak sama dengan refreshToken dari user yang diberikan
+            var user = new UserViewModel
+            {
+                Username = "testUser",
+                RoleName = "user",
+                RefreshToken = "refreshToken",
+                TokenExpires = DateTime.Now.AddDays(-1) // Mengatur TokenExpires menjadi masa lalu
+            };
+
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Name, "testUser"),
+                new Claim(ClaimTypes.Role, "user")
+            }, "mock"));
+
+            _httpContextAccessorMock.Setup(x => x.HttpContext.Request.Cookies["refreshToken"]).Returns(refreshToken);
+            _authServiceMock.Setup(s => s.ValidateAccessToken(It.IsAny<string>())).Returns(principal);
+            _userServiceMock.Setup(u => u.GetByUsername(It.IsAny<string>())).ReturnsAsync(user);
+
+            // Act
+            var result = await _controller.RefreshToken();
+
+            // Assert
+            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
+            Assert.Equal("Token expired.", unauthorizedResult.Value);
+        }
+
+        [Fact]
         public async Task Login_SuccessfulLogin_ReturnsOk()
         {
             // Arrange
