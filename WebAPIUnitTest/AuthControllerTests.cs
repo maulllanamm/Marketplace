@@ -77,6 +77,30 @@ namespace WebAPIUnitTest
         }
 
         [Fact]
+        public async Task RefreshToken_NullPrincipal_NotFound()
+        {
+            // Arrange
+            var refreshToken = "validRefreshToken";
+            var user = new UserViewModel
+            {
+                Username = "testUser",
+                RoleName = "user",
+                RefreshToken = "validRefreshToken",
+                TokenExpires = DateTime.Now.AddDays(1)
+            };
+            _httpContextAccessorMock.Setup(x => x.HttpContext.Request.Cookies["refreshToken"]).Returns(refreshToken);
+            _authServiceMock.Setup(m => m.ValidateAccessToken(refreshToken)).Returns((ClaimsPrincipal)null);
+
+            // Act
+            var result = await _controller.RefreshToken();
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+            var notFound = result as NotFoundObjectResult;
+            Assert.Equal("Invalid token.", notFound.Value);
+        }
+
+        [Fact]
         public async Task Login_SuccessfulLogin_ReturnsOk()
         {
             // Arrange
