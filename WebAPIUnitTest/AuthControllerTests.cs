@@ -184,5 +184,30 @@ namespace WebAPIUnitTest
             Assert.Equal("Username or password did not match.", result.Value);
         }
 
+        [Fact]
+        public async Task Register_SuccessfulRegister_ReturnsOk()
+        {
+            // Arrange
+            var registerRequest = new RegisterViewModal 
+            {       
+                    RoleId = 1,
+                    Username = "user", 
+                    Password = "password",
+                    Email = "user@gmail.com",
+                    FullName = "fulluser",
+                    PhoneNumber = "1234567890",
+                    Address = "test_address"
+            };
+
+            _authServiceMock.Setup(m => m.Register(registerRequest)).ReturnsAsync(new UserViewModel());
+
+            // Act
+            var result = await _controller.Register(registerRequest) as OkObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+        }
+
     }
 }
