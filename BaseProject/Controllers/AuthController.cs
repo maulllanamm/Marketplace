@@ -14,11 +14,13 @@ namespace Marketplace.Controllers
     {
         private readonly IAuthService _service;
         private readonly IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthController(IAuthService service, IUserService userService)
+        public AuthController(IAuthService service, IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _service = service;
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [Authorize]
@@ -32,9 +34,21 @@ namespace Marketplace.Controllers
         [HttpPost]
         public async Task<ActionResult> RefreshToken()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
+            var refreshToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized("Invalid token.");
+            }
+
             var principal = _service.ValidateAccessToken(refreshToken);
-            var user = await _userService.GetByUsername(principal.FindFirstValue(ClaimTypes.Name));
+            if (principal == null)
+            {
+                return Unauthorized("Invalid token.");
+            }
+
+            // Mendapatkan informasi user dari token
+            var username = principal.FindFirstValue(ClaimTypes.Name);
+            var user = await _userService.GetByUsername(username);
             if (!user.RefreshToken.Equals(refreshToken))
             {
                 return Unauthorized("Invalid Refresh Token.");
