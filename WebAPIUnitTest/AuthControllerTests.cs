@@ -62,6 +62,21 @@ namespace WebAPIUnitTest
         }
 
         [Fact]
+        public async Task RefreshToken_EmptyRefreshToken_BadRequest()
+        {
+            // Arrange
+            _httpContextAccessorMock.Setup(x => x.HttpContext.Request.Cookies["refreshToken"]).Returns(string.Empty);
+
+            // Act
+            var result = await _controller.RefreshToken();
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+            var badRequest = result as BadRequestObjectResult;
+            Assert.Equal("Invalid token.", badRequest.Value);
+        }
+
+        [Fact]
         public async Task Login_SuccessfulLogin_ReturnsOk()
         {
             // Arrange
