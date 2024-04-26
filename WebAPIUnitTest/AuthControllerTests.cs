@@ -184,7 +184,7 @@ namespace WebAPIUnitTest
             _authServiceMock.Setup(m => m.Login(loginRequest)).ReturnsAsync((UserViewModel)null);
 
             // Act
-            var result = await _controller.Login(loginRequest) as BadRequestObjectResult;
+            var result = await _controller.Login(loginRequest) ;
 
             // Assert
             var badRequest = result as BadRequestObjectResult;
