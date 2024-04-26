@@ -1,3 +1,5 @@
+using AutoMapper.Internal;
+using FluentAssertions;
 using Marketplace.Controllers;
 using Marketplace.Enitities;
 using Marketplace.Responses;
@@ -5,6 +7,7 @@ using Marketplace.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System.Formats.Asn1;
 using System.Security.Claims;
 
 namespace WebAPIUnitTest
@@ -31,7 +34,7 @@ namespace WebAPIUnitTest
         public async Task GetMe_ReturnOkObjectResult()
         {
             var result = await _controller.GetMe();
-            Assert.IsType<OkObjectResult>(result);
+            result.Should().BeOfType<OkObjectResult>();
         }
 
         [Fact]
@@ -57,9 +60,10 @@ namespace WebAPIUnitTest
             var result = await _controller.RefreshToken();
 
             // Assert
-            Assert.IsType<OkObjectResult>(result);
             var okResult = result as OkObjectResult;
-            Assert.Equal("newAccessToken", okResult.Value);
+            okResult.Should().NotBeNull(); // Assert that the result is not null
+            okResult.Should().BeOfType<OkObjectResult>(); // Assert that the result is of type OkObjectResult
+            okResult.Value.Should().Be("newAccessToken"); // Assert that the value matches "newAccessToken"
         }
 
         [Fact]
@@ -72,9 +76,9 @@ namespace WebAPIUnitTest
             var result = await _controller.RefreshToken();
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
             var badRequest = result as BadRequestObjectResult;
-            Assert.Equal("Invalid token.", badRequest.Value);
+            badRequest.Value.Should().Be("Invalid token.");
+            badRequest.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
@@ -89,9 +93,9 @@ namespace WebAPIUnitTest
             var result = await _controller.RefreshToken();
 
             // Assert
-            Assert.IsType<NotFoundObjectResult>(result);
             var notFound = result as NotFoundObjectResult;
-            Assert.Equal("Invalid token.", notFound.Value);
+            notFound.Value.Should().Be("Invalid token.");
+            notFound.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -115,8 +119,9 @@ namespace WebAPIUnitTest
             var result = await _controller.RefreshToken();
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Invalid Refresh Token.", badRequestResult.Value);
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Should().BeOfType<BadRequestObjectResult>();
+            badRequest.Value.Should().Be("Invalid Refresh Token.");
         }
 
         [Fact]
@@ -145,8 +150,9 @@ namespace WebAPIUnitTest
             var result = await _controller.RefreshToken();
 
             // Assert
-            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
-            Assert.Equal("Token expired.", unauthorizedResult.Value);
+            var unauthorized = result as UnauthorizedObjectResult;
+            unauthorized.Should().BeOfType<UnauthorizedObjectResult>();
+            unauthorized.Value.Should().Be("Token expired.");
         }
 
         [Fact]
@@ -161,11 +167,13 @@ namespace WebAPIUnitTest
             _authServiceMock.Setup(m => m.GenerateRefreshToken(user.Username)).ReturnsAsync("fake_refresh_token");
 
             // Act
-            var result = await _controller.Login(loginRequest) as ObjectResult;
+            var result = await _controller.Login(loginRequest);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(200, result.StatusCode);
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult.StatusCode.Should().Be(200);
+
         }
 
         [Fact]
@@ -179,9 +187,10 @@ namespace WebAPIUnitTest
             var result = await _controller.Login(loginRequest) as BadRequestObjectResult;
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Equal("Username or password did not match.", result.Value);
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Should().NotBeNull();
+            badRequest.StatusCode.Should().Be(400);
+            badRequest.Value.Should().Be("Username or password did not match.");
         }
 
         [Fact]
@@ -202,11 +211,12 @@ namespace WebAPIUnitTest
             _authServiceMock.Setup(m => m.Register(registerRequest)).ReturnsAsync(new UserViewModel());
 
             // Act
-            var result = await _controller.Register(registerRequest) as OkObjectResult;
+            var result = await _controller.Register(registerRequest) ;
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(200, result.StatusCode);
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult.StatusCode.Should().Be(200);
         }
 
     }
